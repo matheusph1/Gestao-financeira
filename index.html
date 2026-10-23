@@ -495,7 +495,7 @@
 
   </main>
 
-  <!-- MOTOR JAVASCRIPT: FIREBASE + CHAVE API PADRÃO AI STUDIO -->
+  <!-- MOTOR JAVASCRIPT: FIREBASE + TOKEN BEARER DO AI STUDIO -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -509,8 +509,8 @@
       appId: "1:128276556915:web:3499f3ba717204a46f4e06"
     };
 
-    // Chave de API pública padrão (começa com AIzaSy...)
-    const GEMINI_API_KEY = "AIzaSyBPuX-zC4Gbl-PjZupyJtb14RbwKv0-Avg";
+    // Token Bearer exato obtido na imagem do seu AI Studio
+    const GEMINI_BEARER_TOKEN = "AQ.Ab8RN6KMfmoJWvpktE4uZLZ-cKE8JWP426HnAzX7BQ6H-oH8w";
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -1746,7 +1746,7 @@
     }
 
     // ==========================================================
-    // IA CONVERSACIONAL COM CHAVE PADRÃO AI STUDIO
+    // IA CONVERSACIONAL COM CHAVE PADRÃO
     // ==========================================================
     let HISTORICO_CONVERSA = [];
 
@@ -1994,7 +1994,7 @@ E avise o Matheus com entusiasmo de que a despesa foi lançada com sucesso!
     window.atualizarMesGrade = atualizarMesGrade;
     window.adicionarLinhaEmBranco = adicionarLinhaEmBranco;
     window.removerLinhaGrade = removerLinhaGrade;
-    window.abrirModalImportarIA = abrirModalImportar_ia = abrirModalImportarIA;
+    window.abrirModalImportarIA = abrirModalImportarIA;
     window.fecharModalImportarIA = fecharModalImportarIA;
     window.confirmarImportacaoIA = confirmarImportacaoIA;
     window.enviarMensagemChat = enviarMensagemChat;
