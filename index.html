@@ -438,7 +438,7 @@
       <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm">
         <div>
           <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Planilha Mestra de Lançamentos</h2>
-          <p class="text-xs text-slate-500">Todos os lançamentos sincronizados. Qualquer edição atualiza o site automaticamente.</p>
+          <p class="text-xs text-slate-500">Todos los lançamentos sincronizados. Qualquer edição atualiza o site automaticamente.</p>
         </div>
 
         <div class="flex items-center gap-3">
@@ -495,7 +495,7 @@
 
   </main>
 
-  <!-- MOTOR JAVASCRIPT: FIREBASE + GEMINI AI STUDIO ESTÁVEL -->
+  <!-- MOTOR JAVASCRIPT: FIREBASE + TOKEN BEARER DO AI STUDIO -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -509,8 +509,8 @@
       appId: "1:128276556915:web:3499f3ba717204a46f4e06"
     };
 
-    // Chave de API dedicada do Google AI Studio fornecida
-    const GEMINI_API_KEY = "AQ.Ab8RN6LoOEz2qUr0jXjTuucZfdgB-0homlQxWemfg6Y6YarOQg";
+    // Token Bearer oficial obtido diretamente do AI Studio (visível na sua imagem)
+    const GEMINI_BEARER_TOKEN = "AQ.Ab8RN6KMfmoJWvpktE4uZLZ-cKE8JWP426HnAzX7BQ6H-oH8w";
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -1746,7 +1746,7 @@
     }
 
     // ==========================================================
-    // IA CONVERSACIONAL COM O MODELO ESTÁVEL GEMINI-1.5-FLASH
+    // IA CONVERSACIONAL COM BEARER TOKEN
     // ==========================================================
     let HISTORICO_CONVERSA = [];
 
@@ -1867,14 +1867,16 @@ E avise o Matheus com entusiasmo de que a despesa foi lançada com sucesso!
         payloadREST.push({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.text }] });
       });
 
-      // Modelo estável e oficial do AI Studio
       const modelos = ["gemini-1.5-flash", "gemini-1.5-pro"];
       for (const mod of modelos) {
         try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${GEMINI_API_KEY}`;
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent`;
           const res = await fetch(url, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${GEMINI_BEARER_TOKEN}`
+            },
             body: JSON.stringify({ contents: payloadREST })
           });
           const data = await res.json();
