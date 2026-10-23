@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestao Financeira - Matheus Phillip</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      background-color: #f8fafc; 
+      color: #0f172a; 
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; 
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    input[type="checkbox"] { accent-color: #059669; }
+    .sheet-table th, .sheet-table td { border: 1px solid #e2e8f0; white-space: nowrap; }
+    .sheet-table input, .sheet-table select { 
+      border: none; 
+      background: transparent; 
+      width: 100%; 
+      height: 100%; 
+      padding: 6px 8px; 
+      font-size: 11px; 
+      outline: none; 
+    }
+    .sheet-table input:focus, .sheet-table select:focus { 
+      background-color: #f1f5f9; 
+      box-shadow: inset 0 0 0 1.5px #059669; 
+    }
+    .header-planilha { background: linear-gradient(180deg, #064e3b 0%, #022c22 100%); color: #ffffff; }
+    .linha-paga { background-color: #dcfce7 !important; border-left: 4px solid #10b981 !important; }
+  </style>
+</head>
+<body class="min-h-screen pb-16">
+
+  <!-- Header Superior -->
+  <header class="border-b border-slate-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3.5">
+        <div class="bg-gradient-to-tr from-emerald-600 to-teal-500 text-white p-2.5 rounded-xl shadow-md shadow-emerald-600/20">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-slate-900 text-base tracking-tight leading-none">Gestao Financeira - Matheus Phillip</h1>
+          <p class="text-[11px] font-semibold text-slate-500 mt-1 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="txt-total-ativos">312 Lançamentos Ativos Integrados</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- Botão Importar Fatura Nova -->
+        <button onclick="abrirModalImportarIA()" class="px-3.5 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition-all shadow-sm flex items-center gap-1.5">
+          <span>⚡</span>
+          <span>Importar Fatura Nova</span>
+        </button>
+
+        <!-- Seletor de Período -->
+        <div class="flex items-center space-x-1.5 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200 shadow-inner">
+          <select id="sel-mes" onchange="atualizarPeriodo()" class="bg-white text-xs font-bold text-slate-700 rounded-lg px-3 py-1.5 border border-slate-200/90 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-600 cursor-pointer">
+            <option value="1">Janeiro</option>
+            <option value="2">Fevereiro</option>
+            <option value="3">Março</option>
+            <option value="4">Abril</option>
+            <option value="5">Maio</option>
+            <option value="6">Junho</option>
+            <option value="7">Julho</option>
+            <option value="8">Agosto</option>
+            <option value="9">Setembro</option>
+            <option value="10" selected>Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+          </select>
+          <select id="sel-ano" onchange="atualizarPeriodo()" class="bg-white text-xs font-bold text-slate-700 rounded-lg px-3 py-1.5 border border-slate-200/90 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-600 cursor-pointer">
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navegação de Abas -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex space-x-7 border-t border-slate-100 text-sm overflow-x-auto">
+      <button onclick="mudarAba('acompanhamento')" id="tab-acompanhamento" class="py-3.5 font-bold border-b-2 border-emerald-600 text-emerald-700 whitespace-nowrap flex items-center gap-2">
+        <span>📊</span> Acompanhamento & Checklist
+      </button>
+      <button onclick="mudarAba('receitas')" id="tab-receitas" class="py-3.5 font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-2">
+        <span>💰</span> Receitas (Previsto vs. Recebido)
+      </button>
+      <button onclick="mudarAba('metas')" id="tab-metas" class="py-3.5 font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-2">
+        <span>🎯</span> Metas por Categoria
+      </button>
+      <button onclick="mudarAba('categorias')" id="tab-categorias" class="py-3.5 font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-2">
+        <span>🏷️</span> Categorias
+      </button>
+      <button onclick="mudarAba('grade')" id="tab-grade" class="py-3.5 font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-2">
+        <span>📑</span> Planilha Mestra (<span id="contador-mestra-aba">312</span>)
+      </button>
+    </div>
+  </header>
+
+  <!-- COPILOTO GEMINI CONVERSACIONAL (CHAT INTELIGENTE) -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">✨</span>
+          <span class="font-bold text-slate-800 text-xs uppercase tracking-wide">Assistente Gemini Proativo</span>
+        </div>
+        <button onclick="limparHistoricoChat()" class="text-[11px] text-slate-400 hover:text-slate-600 font-semibold">Limpar conversa</button>
+      </div>
+
+      <div id="chat-mensagens" class="space-y-3 max-h-56 overflow-y-auto pr-1 mb-3 text-xs">
+        <div class="flex gap-2">
+          <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">AI</div>
+          <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-2xl rounded-tl-none text-slate-700 leading-relaxed max-w-[85%]">
+            Olá, Matheus! Estou pronto. Pode pedir para lançar despesas ou tirar dúvidas sobre o seu dinheiro.
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <div class="relative flex-1">
+          <input 
+            type="text" 
+            id="input-chat-gemini" 
+            placeholder="Converse comigo: 'adicione 300 reais' ou 'como estão meus gastos?'..." 
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:bg-white"
+            onkeydown="if(event.key === 'Enter') enviarMensagemChat()"
+          />
+          <button 
+            type="button" 
+            onclick="iniciarGravacaoVoz()" 
+            id="btn-voz-gemini" 
+            title="Gravar por voz"
+            class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 p-1"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3z"></path></svg>
+          </button>
+        </div>
+        <button 
+          onclick="enviarMensagemChat()" 
+          id="btn-enviar-chat"
+          class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all whitespace-nowrap"
+        >
+          Enviar
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-4 space-y-6">
+
+    <!-- MODAL DE IMPORTAÇÃO RÁPIDA -->
+    <div id="modal-importar-ia" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl border border-slate-200 max-w-xl w-full p-6 space-y-4 shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-slate-900 uppercase">Importar Nova Fatura Processada</h3>
+            <p class="text-[11px] text-slate-500">Cole o código curto enviado aqui no chat para inserir os lançamentos instantaneamente.</p>
+          </div>
+          <button onclick="fecharModalImportarIA()" class="text-slate-400 hover:text-slate-600 font-bold p-1">✕</button>
+        </div>
+        <div>
+          <textarea id="texto-importacao-ia" rows="7" placeholder="Cole aqui o bloco gerado no chat..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-600"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button onclick="fecharModalImportarIA()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+          <button onclick="confirmarImportacaoIA()" class="px-4 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm">✓ Inserir no Site</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 1: ACOMPANHAMENTO & CHECKLIST -->
+    <div id="view-acompanhamento" class="space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Renda Recebida (Na Conta)</div>
+          <div id="card-renda" class="text-2xl font-extrabold text-emerald-700 tracking-tight">R$ 0,00</div>
+          <p id="card-renda-sub" class="text-xs font-medium text-slate-500 mt-1">Entradas confirmadas</p>
+        </div>
+
+        <div class="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Total de Despesas</div>
+          <div id="card-despesas" class="text-2xl font-extrabold text-slate-900 tracking-tight">R$ 0,00</div>
+          <p id="card-qtd-itens" class="text-xs font-medium text-slate-500 mt-1">0 despesas no período</p>
+        </div>
+
+        <div class="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Saldo Real do Mês</div>
+          <div id="card-saldo" class="text-2xl font-extrabold text-slate-900 tracking-tight">R$ 0,00</div>
+          <p id="card-saldo-sub" class="text-xs font-medium text-slate-500 mt-1">Equilíbrio no período</p>
+        </div>
+
+        <div class="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Consumo do Orçamento</div>
+          <div id="card-consumo-pct" class="text-2xl font-extrabold text-slate-900 tracking-tight">0%</div>
+          <div class="w-full bg-slate-100 rounded-full h-2 mt-2.5 overflow-hidden">
+            <div id="barra-consumo" class="bg-emerald-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <p class="text-[11px] font-medium text-slate-400 mt-1.5">Teto Base: R$ 21.600,00</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-4">
+          <div class="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/70">
+              <div>
+                <h2 id="titulo-extrato" class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Extrato de Despesas</h2>
+                <p class="text-[11px] text-slate-500">Ordem: Terceiros → Boletos → Cartões (Parcelados antes de À Vista)</p>
+              </div>
+              <span id="contador-extrato" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-200/70 text-slate-700">0 itens</span>
+            </div>
+            <div class="overflow-x-auto max-h-[620px] overflow-y-auto">
+              <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-50/95 text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200/80 sticky top-0 z-10 backdrop-blur">
+                  <tr>
+                    <th class="py-3 px-4">Origem / Forma</th>
+                    <th class="py-3 px-4">Descrição</th>
+                    <th class="py-3 px-4">Categoria</th>
+                    <th class="py-3 px-4">Início</th>
+                    <th class="py-3 px-4 text-right">Valor no Mês</th>
+                    <th class="py-3 px-4 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="corpo-extrato" class="divide-y divide-slate-100 font-medium"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm">
+            <div class="border-b border-slate-100 pb-3 mb-4 flex justify-between items-start">
+              <div>
+                <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Checklist de Pagamentos</h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">Marcações independentes por mês.</p>
+              </div>
+              <span id="badge-mes-checklist" class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-sm"></span>
+            </div>
+
+            <div class="overflow-x-auto max-h-[540px] overflow-y-auto">
+              <table class="w-full text-left text-xs text-slate-600">
+                <thead class="text-slate-400 border-b border-slate-100 pb-2 text-[10px] uppercase font-bold tracking-wider sticky top-0 bg-white">
+                  <tr>
+                    <th class="pb-2 font-bold">Origem / Descrição</th>
+                    <th class="pb-2 text-right font-bold">Valor</th>
+                    <th class="pb-2 text-center font-bold">Pago?</th>
+                  </tr>
+                </thead>
+                <tbody id="corpo-checklist" class="divide-y divide-slate-100 font-medium"></tbody>
+              </table>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-slate-100 flex justify-between items-center text-xs">
+              <span class="text-slate-500 font-bold uppercase text-[10px] tracking-wider">Total Liquidado no Mês</span>
+              <span id="total-pago-checklist" class="font-extrabold text-emerald-600 text-sm font-mono">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 2: RECEITAS INTELIGENTES -->
+    <div id="view-receitas" class="hidden space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-sm">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Previsto no Mês</div>
+          <div id="rec-card-previsto" class="text-2xl font-extrabold text-slate-900 font-mono">R$ 0,00</div>
+          <p id="rec-card-previsto-sub" class="text-xs text-slate-500 mt-1">Soma de todas as entradas esperadas</p>
+        </div>
+
+        <div class="bg-emerald-50/60 border border-emerald-200 p-5 rounded-2xl shadow-sm">
+          <div class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider mb-1">Já Recebido (Na Conta ✅)</div>
+          <div id="rec-card-recebido" class="text-2xl font-extrabold text-emerald-700 font-mono">R$ 0,00</div>
+          <p id="rec-card-recebido-sub" class="text-xs text-emerald-600 font-medium mt-1">Disponível no Saldo Real</p>
+        </div>
+
+        <div class="bg-amber-50/60 border border-amber-200 p-5 rounded-2xl shadow-sm">
+          <div class="text-[11px] font-bold text-amber-700 uppercase tracking-wider mb-1">Falta Cair (A Receber ⏳)</div>
+          <div id="rec-card-pendente" class="text-2xl font-extrabold text-amber-700 font-mono">R$ 0,00</div>
+          <p id="rec-card-pendente-sub" class="text-xs text-amber-600 font-medium mt-1">Aguardando confirmação / PIX</p>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-sm space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div>
+            <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Lançar Nova Receita / Plantão Extra</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Você também pode editar qualquer valor diretamente nas linhas da tabela abaixo.</p>
+          </div>
+          <span id="badge-mes-receitas" class="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200"></span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Data:</label>
+            <input type="date" id="rec-data" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-700 focus:outline-none" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Descrição:</label>
+            <input type="text" id="rec-desc" placeholder="Ex: Plantão Extra / Reembolso" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-700 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Categoria:</label>
+            <select id="rec-cat" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-700 focus:outline-none"></select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Valor (R$):</label>
+            <input type="number" step="0.01" id="rec-val" placeholder="0,00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-700 focus:outline-none font-mono" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Repetir (Meses):</label>
+            <input type="number" min="1" max="24" value="1" id="rec-meses" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-700 focus:outline-none font-mono text-center" />
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center pt-2">
+          <label class="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer">
+            <input type="checkbox" id="rec-ja-recebido" class="w-4 h-4 rounded" />
+            Já caiu na conta (Marcar como Recebido ✅)
+          </label>
+          <button onclick="adicionarReceita()" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
+            + Adicionar Receita
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm">
+        <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/70 flex justify-between items-center">
+          <span class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Relação de Receitas do Mês</span>
+          <span class="text-[11px] text-slate-500">Clique no valor para ajustar centavos/extras • Marque o check quando cair na conta</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-4">Data Prevista</th>
+                <th class="py-3 px-4">Descrição da Receita</th>
+                <th class="py-3 px-4">Categoria / Origem</th>
+                <th class="py-3 px-4 text-right">Valor no Mês (Editável)</th>
+                <th class="py-3 px-4 text-center">Status / Confirmação</th>
+                <th class="py-3 px-4 text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-receitas" class="divide-y divide-slate-100 font-medium"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 3: METAS POR CATEGORIA -->
+    <div id="view-metas" class="hidden space-y-6">
+      <div class="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-sm space-y-5">
+        <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <h2 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider">Metas por Categoria</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Acompanhe quanto da meta foi utilizado no mês selecionado.</p>
+          </div>
+          <span id="badge-mes-metas" class="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-sm"></span>
+        </div>
+        <div id="grid-metas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+    </div>
+
+    <!-- ABA 4: GERENCIAR E CRIAR CATEGORIAS -->
+    <div id="view-categorias" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-sm space-y-4 h-fit">
+          <div class="border-b border-slate-100 pb-3">
+            <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">➕ Criar Nova Categoria</h2>
+            <p class="text-[11px] text-slate-500 mt-0.5">Adicione categorias personalizadas para despesas ou receitas.</p>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Nome da Categoria:</label>
+              <input type="text" id="nova-cat-nome" placeholder="Ex: Cuidados Pessoais / PJ Médico" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Tipo de Categoria:</label>
+              <select id="nova-cat-tipo" onchange="alternarInputMetaNovaCat()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 font-semibold focus:outline-none">
+                <option value="despesa">Despesa (Aparece nas Metas e Extrato)</option>
+                <option value="receita">Receita (Aparece na aba Receitas)</option>
+              </select>
+            </div>
+
+            <div id="box-nova-cat-meta">
+              <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Meta Mensal Padrão (R$):</label>
+              <input type="number" step="50" id="nova-cat-meta" value="500" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 font-mono font-bold focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+            </div>
+
+            <button onclick="criarNovaCategoria()" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
+              ✓ Salvar Nova Categoria
+            </button>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 space-y-2">
+            <div class="text-[10px] font-extrabold text-indigo-700 uppercase tracking-wider">✨ Ajustes Inteligentes em 1 Clique</div>
+            <p class="text-[11px] text-slate-500">Deseja aplicar as melhorias sugeridas nos seus lançamentos atuais?</p>
+            <button onclick="aplicarOtimizacaoSugerida()" class="w-full py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-[11px] font-bold transition-all text-left flex items-center justify-between">
+              <span>⚡ Organizar Ubers, Curso Otorrino & Barbearia</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+          <div class="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-sm space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div>
+                <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">🏷️ Categorias de Despesas Ativas</h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">Se você alterar o nome de uma categoria aqui, todos os lançamentos dela serão atualizados automaticamente.</p>
+              </div>
+            </div>
+            <div id="lista-categorias-despesa" class="divide-y divide-slate-100 max-h-[460px] overflow-y-auto pr-1"></div>
+          </div>
+
+          <div class="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-sm space-y-4">
+            <div class="border-b border-slate-100 pb-3">
+              <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">💰 Categorias de Receitas Ativas</h2>
+            </div>
+            <div id="lista-categorias-receita" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 5: PLANILHA MESTRA -->
+    <div id="view-grade" class="hidden space-y-4">
+      <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm">
+        <div>
+          <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Planilha Mestra de Lançamentos</h2>
+          <p class="text-xs text-slate-500">Todos os lançamentos sincronizados. Qualquer edição atualiza o site automaticamente.</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="relative w-full sm:w-72">
+            <input 
+              type="text" 
+              id="busca-grade" 
+              placeholder="🔍 Buscar por nome, categoria ou cartão..." 
+              oninput="renderizarGradeMestra()" 
+              class="w-full bg-slate-50 border border-slate-300/80 rounded-xl pl-3 pr-8 py-2 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:bg-white shadow-sm transition-all"
+            />
+          </div>
+          <button onclick="adicionarLinhaEmBranco()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all whitespace-nowrap">
+            + Adicionar Linha
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-300 rounded-xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto max-h-[72vh]">
+          <table class="w-full text-left text-[11px] sheet-table">
+            <thead class="header-planilha sticky top-0 z-30 font-bold tracking-wider text-center">
+              <tr>
+                <th class="py-2.5 px-3 min-w-[90px]">Data</th>
+                <th class="py-2.5 px-3 min-w-[220px] text-left">Descrição</th>
+                <th class="py-2.5 px-3 min-w-[140px]">Categoria</th>
+                <th class="py-2.5 px-3 min-w-[120px]">Forma de Pagamento</th>
+                <th class="py-2.5 px-3 min-w-[100px]">Tipo de Gasto</th>
+                <th class="py-2.5 px-3 min-w-[100px]">Valor Total</th>
+                <th class="py-2.5 px-2 min-w-[70px]">Nº Parc.</th>
+                <th class="py-2.5 px-2 min-w-[70px]">Mês Inic.</th>
+                <th class="py-2.5 px-3 min-w-[100px]">Valor Parcela</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Jan</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Fev</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Mar</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Abr</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Mai</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Jun</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Jul</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Ago</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Set</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Out</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Nov</th>
+                <th class="py-2.5 px-2 min-w-[75px]">Dez</th>
+                <th class="py-2.5 px-3 min-w-[110px] bg-emerald-950 font-extrabold">Total 2026</th>
+                <th class="py-2.5 px-2 min-w-[70px]">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-grade-mestra" class="divide-y divide-slate-200 bg-white"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MOTOR JAVASCRIPT: FIREBASE + GEMINI AI STUDIO ESTÁVEL -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBPuX-zC4Gbl-PjZupyJtb14RbwKv0-Avg",
+      authDomain: "vida-financeira-94679.firebaseapp.com",
+      projectId: "vida-financeira-94679",
+      storageBucket: "vida-financeira-94679.firebasestorage.app",
+      messagingSenderId: "128276556915",
+      appId: "1:128276556915:web:3499f3ba717204a46f4e06"
+    };
+
+    // Chave de API dedicada do Google AI Studio fornecida
+    const GEMINI_API_KEY = "AQ.Ab8RN6LoOEz2qUr0jXjTuucZfdgB-0homlQxWemfg6Y6YarOQg";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const DOC_REF = doc(db, "gestao_financeira", "dados_matheus");
+
+    const MESES_ABREV = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    
+    const CATEGORIAS_DESPESA_PADRAO = [
+      "Alimentação", "Supermercado", "Carro", "Gasolina", "Uber", "Casa", 
+      "Educação", "Empréstimo", "Compras online", "Eletronicos", "Vestuário", 
+      "Roles", "Show", "Fitness", "Farmácia", "Saúde", "Assinaturas", "Barbearia", 
+      "Presentes", "Jana ❤️", "Pagar Welder", "Conta de telefone", "Contabilidade", "Outros"
+    ];
+
+    const CATEGORIAS_RECEITA_PADRAO = [
+      "Salário PSF", "Salário Core", "Plantão Extra", "Jana ❤️", "Pai", "Guilherme", "Investimentos", "Outros"
+    ];
+
+    const CONTAS_OPCOES = ["Pai", "Mãe", "Welder", "Boleto", "Nubank", "PortoBank", "Santander", "PIX / Dinheiro"];
+
+    let CATEGORIAS_OPCOES = [...CATEGORIAS_DESPESA_PADRAO];
+    let CATEGORIAS_RECEITA = [...CATEGORIAS_RECEITA_PADRAO];
+
+    function renderizarBadgeConta(conta) {
+      const c = (conta || '').toLowerCase();
+      if (c === 'nubank') {
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#f3e8ff] text-[#820ad1] border border-[#d8b4fe]">
+          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-6h2v6zm4 0h-2V8h2v8z"/></svg>
+          Nubank
+        </span>`;
+      }
+      if (c === 'santander') {
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#fee2e2] text-[#ec0000] border border-[#fca5a5]">
+          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13H5.5L12 6.5z"/></svg>
+          Santander
+        </span>`;
+      }
+      if (c === 'portobank') {
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#e0f2fe] text-[#0284c7] border border-[#7dd3fc]">
+          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          PortoBank
+        </span>`;
+      }
+      if (c === 'boleto') {
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#fef3c7] text-[#b45309] border border-[#fde68a]">
+          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M3 4h2v16H3zm4 0h1v16H7zm3 0h2v16h-2zm4 0h1v16h-1zm3 0h3v16h-3z"/></svg>
+          Boleto
+        </span>`;
+      }
+      if (c === 'pai' || c === 'mãe' || c === 'mae' || c === 'welder') {
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#ede9fe] text-[#6d28d9] border border-[#ddd6fe]">
+          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          ${conta}
+        </span>`;
+      }
+      return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-slate-100 text-slate-700 border border-slate-200">${conta}</span>`;
+    }
+
+    const METAS_BASE = {
+      "Alimentação": 1500, "Supermercado": 1200, "Carro": 3500, "Gasolina": 800,
+      "Uber": 300, "Casa": 2000, "Educação": 2000, "Empréstimo": 7000,
+      "Compras online": 1500, "Vestuário": 600, "Roles": 1000, "Fitness": 250,
+      "Farmácia": 350, "Saúde": 400, "Assinaturas": 200, "Eletronicos": 2000, "Outros": 1000,
+      "Barbearia": 200, "Jana ❤️": 1000, "Show": 500, "Presentes": 500,
+      "Pagar Welder": 200, "Conta de telefone": 100, "Contabilidade": 150
+    };
+
+    const RAW_LANCAMENTOS = [
+      ["24/09/2025","Mackbook (11/12)","Eletronicos","Santander","Parcelado",3626.37,9,1,402.93],
+      ["08/10/2025","MERCADOLIVRE MERCADOL (11/12)","Eletronicos","Santander","Parcelado",148.95,9,1,16.55],
+      ["08/10/2025","Ipad (11/12)","Eletronicos","Santander","Parcelado",2376.0,9,1,264.0],
+      ["16/10/2025","Apple Watch (10/10)","Eletronicos","Nubank","Parcelado",1720.0,8,1,215.0],
+      ["28/11/2025","PG FERRETTO CURSOS ON (09/12)","Educação","Santander","Parcelado",357.5,11,1,32.5],
+      ["28/11/2025","HTM LEXI ACADEMY LTDA (09/12)","Educação","Santander","Parcelado",764.72,11,1,69.52],
+      ["28/11/2025","HTM CHAMAFISICO (09/12)","Educação","Santander","Parcelado",589.82,11,1,53.62],
+      ["02/01/2026","PERFECTPAY 58 482 250 (08/12)","Outros","Santander","Parcelado",80.76,12,1,6.73],
+      ["20/01/2026","Acessório Argo (07/10)","Carro","Santander","Parcelado",8770.0,10,2,877.0],
+      ["21/01/2026","PG FINHUB SOLUCOES IN (07/12)","Outros","Santander","Parcelado",198.0,12,2,16.5],
+      ["23/01/2026","Seguro Argo (Porto Seguro) (07/10)","Carro","PortoBank","Parcelado",3317.7,10,1,331.77],
+      ["18/02/2026","Garrafa Stanley (06/09)","Compras online","PortoBank","Parcelado",268.92,9,3,29.88],
+      ["04/03/2026","Ar condicionado - Caminhao (05/05)","Presentes","PortoBank","Parcelado",4800.0,5,3,960.0],
+      ["18/03/2026","Insufilm Argo (05/06)","Carro","PortoBank","Parcelado",939.96,6,4,156.66],
+      ["21/03/2026","KIWIFY FANTASTICO (05/05)","Educação","PortoBank","Parcelado",306.6,5,4,61.32],
+      ["28/03/2026","Acessório carro Guilherme (05/12)","Carro","Santander","Parcelado",7980.0,12,4,665.0],
+      ["07/04/2026","KIWIFY GRUPODEALE (04/04)","Educação","PortoBank","Parcelado",214.48,4,1,53.62],
+      ["12/04/2026","Roupas Nova Contagem (04/10)","Vestuário","PortoBank","Parcelado",791.1,10,5,79.11],
+      ["24/04/2026","IMPETUS CONTAGEM (04/04)","Fitness","PortoBank","Parcelado",797.0,4,2,199.25],
+      ["05/05/2026","AIRBNB HMZYXHBJEZ (03/03)","Jana ❤️","Nubank","Parcelado",184.53,3,4,61.51],
+      ["11/05/2026","Financiamento Província (01/06)","Empréstimo","Boleto","Parcelado",4460.44,1,5,4460.44],
+      ["01/06/2026","Airpod Pro (03/10)","Eletronicos","PortoBank","Parcelado",1599.0,10,6,159.9],
+      ["01/06/2026","Faxina Andreia","Casa","Pai","Parcelado",1400.0,7,6,200.0],
+      ["04/06/2026","JIM COM NTRAVELCN (02/03)","Roles","PortoBank","Parcelado",953.79,3,7,317.93],
+      ["10/06/2026","Financiamento Província (02/06)","Empréstimo","Boleto","Parcelado",4460.44,1,6,4460.44],
+      ["10/06/2026","AIRBNBHMK3CD8T3A (01/04)","Roles","Santander","Parcelado",556.2,4,7,139.05],
+      ["10/06/2026","Camisa Brasil (02/03)","Outros","PortoBank","Parcelado",160.59,3,7,53.53],
+      ["10/06/2026","Bicicleta (04/05)","Casa","Pai","Parcelado",529.0,5,4,105.8],
+      ["11/06/2026","Iphone 17 Pro Max + Iphone 15 (02/18)","Eletronicos","PortoBank","Parcelado",10501.92,18,7,583.44],
+      ["19/06/2026","AMAZONMKTPLC WEBFXONLI (02/07)","Compras online","Santander","Parcelado",350.0,7,6,50.0],
+      ["02/07/2026","Tenis Puma (01/02)","Vestuário","Santander","Parcelado",399.88,2,7,199.94],
+      ["03/07/2026","PG FINHUB SOLUCOES IN (01/06)","Outros","Santander","Parcelado",149.7,6,8,24.95],
+      ["04/07/2026","Show Djavan (01/03)","Show","Santander","Parcelado",475.2,3,8,158.4],
+      ["05/07/2026","AIRBNB HMXTXFXMK9 (01/02)","Jana ❤️","Santander","Parcelado",102.14,2,8,51.07],
+      ["06/07/2026","Tenis Nike + Polo (01/06)","Vestuário","Santander","Parcelado",436.56,6,8,72.76],
+      ["06/07/2026","MLP NETSHOES PERSEV JO (01/02)","Vestuário","Santander","Parcelado",198.32,2,8,99.16],
+      ["10/07/2026","Financiamento Alume (01/06)","Empréstimo","Boleto","Parcelado",2318.16,1,7,2318.16],
+      ["10/07/2026","Financiamento Província (03/06)","Empréstimo","Boleto","Parcelado",4460.44,1,7,4460.44],
+      ["10/07/2026","Revisão do Carro (03/04)","Carro","Pai","Parcelado",588.0,4,6,147.0],
+      ["16/07/2026","AIRBNB HMORKDWRKD (01/02)","Jana ❤️","Santander","Parcelado",180.0,2,8,90.0],
+      ["17/07/2026","GONTIJO NSR (01/02)","Jana ❤️","Santander","Parcelado",310.54,2,8,155.27],
+      ["18/07/2026","AIRBNB HMCWSYXRZH (01/02)","Jana ❤️","Santander","Parcelado",162.0,2,8,81.0],
+      ["30/07/2026","Plano Odontológico Jana (01/12)","Jana ❤️","Santander","Parcelado",2117.88,12,8,176.49],
+      ["30/08/2026","Grupo Roma (08/10)","Carro","Nubank","Parcelado",1000.0,10,2,100.0],
+      ["30/08/2026","Iphone 15 - Nubank (17/24)","Compras online","Nubank","Parcelado",5849.65,24,-7,243.74],
+      ["01/08/2026","Curso Otorrino (01/10)","Outros","Nubank","Parcelado",4950.0,10,9,495.0],
+      ["06/08/2026","Otorrino Summith (01/02)","Educação","Santander","Parcelado",85.02,2,9,42.51],
+      ["08/08/2026","Airbnb (01/02)","Roles","Santander","Parcelado",315.0,2,9,157.5],
+      ["09/08/2026","Economart (01/02)","Supermercado","Santander","Parcelado",405.84,2,9,202.92],
+      ["10/08/2026","Financiamento Alume (02/06)","Empréstimo","Boleto","Parcelado",2318.16,1,8,2318.16],
+      ["10/08/2026","Financiamento Província (04/06)","Empréstimo","Boleto","Parcelado",4460.44,1,8,4460.44],
+      ["13/08/2026","Aliancas (01/03)","Outros","Santander","Parcelado",449.94,3,9,149.98],
+      ["18/08/2026","Duo Gourmet (01/06)","Assinaturas","Nubank","Parcelado",270.0,6,9,45.0],
+      ["26/08/2026","Gontijo NSR (01/02)","Roles","Nubank","Parcelado",148.28,2,9,74.14],
+      ["05/09/2026","IPVA (01/05)","Carro","Boleto","Parcelado",2790.1,5,9,558.02],
+      ["10/09/2026","Financiamento Alume (03/06)","Empréstimo","Boleto","Parcelado",2318.16,1,9,2318.16],
+      ["10/09/2026","Financiamento Província (05/06)","Empréstimo","Boleto","Parcelado",4460.44,1,9,4460.44],
+      ["10/09/2026","Financiamento Carro (07/60)","Carro","Boleto","Parcelado",119101.2,60,3,1985.02],
+      ["10/09/2026","Ingresso formatura (09/10)","Casa","Pai","Parcelado",1000.0,10,1,100.0],
+      ["10/09/2026","Festa Clacla (07/10)","Pagar Welder","Welder","Parcelado",2000.0,10,3,200.0],
+      ["10/09/2026","Curso da Isa Chromos (08/10)","Educação","Pai","Parcelado",3450.0,10,2,345.0],
+      ["10/09/2026","Ar condicionado (06/10)","Presentes","Pai","Parcelado",2400.0,10,4,240.0],
+      ["10/09/2026","Entrada carro (08/10)","Carro","Pai","Parcelado",11000.0,10,2,1100.0],
+      ["10/09/2026","Remédio Cannabis - Mãe","Farmácia","Mãe","Parcelado",2560.0,16,9,160.0],
+      ["16/09/2026","Internet NIO","Casa","Boleto","Parcelado",1320.0,12,9,110.0],
+      ["10/10/2026","Financiamento Alume (04/06)","Empréstimo","Boleto","Parcelado",2483.75,1,10,2483.75],
+      ["10/10/2026","Financiamento Província (06/06)","Empréstimo","Boleto","Parcelado",4460.44,1,10,4460.44],
+      ["10/11/2026","Financiamento Alume (05/06)","Empréstimo","Boleto","Parcelado",2483.75,1,11,2483.75],
+      ["10/12/2026","Financiamento Alume (06/06)","Empréstimo","Boleto","Parcelado",2483.75,1,12,2483.75],
+      ["29/08/2026","Kindle (01/10)","Compras online","PortoBank","Parcelado",999.0,10,9,99.9],
+      ["19/09/2026","Ballet Jana (01/06)","Jana ❤️","PortoBank","Parcelado",990.0,6,10,165.0],
+      ["15/09/2026","Motor Portão (01/05)","Compras online","Nubank","Parcelado",685.3,5,10,137.06],
+      ["28/09/2026","Estratégia Med (01/12)","Educação","Santander","Parcelado",11964.0,12,10,997.0],
+      ["10/10/2026","Mercado*Mercadolivre (01/04)","Compras online","Nubank","Parcelado",937.88,4,11,234.47],
+      ["09/10/2026","Amazon Limite Adicional - NuPay (01/02)","Compras online","Nubank","Parcelado",86.34,2,11,43.17],
+      ["09/10/2026","Amazon Limite Adicional - NuPay (02/02)","Compras online","Nubank","Parcelado",86.34,2,10,43.17],
+      ["14/10/2026","Roma fiat - Revisão 20mil (01/02)","Carro","Santander","Parcelado",861.0,2,11,430.5],
+      ["14/10/2026","Peças carro  (01/03)","Carro","Santander","Parcelado",414.54,3,11,138.18]
+    ];
+
+    function construirMestraOriginal() {
+      return RAW_LANCAMENTOS.map((r, i) => {
+        const numParc = r[6], mesInic = r[7], valParc = r[8];
+        const g26 = [0,0,0,0,0,0,0,0,0,0,0,0], g27 = [0,0,0,0,0,0,0,0,0,0,0,0];
+        for (let m = 1; m <= 24; m++) {
+          if (m >= mesInic && m < mesInic + numParc) {
+            if (m <= 12) g26[m - 1] = valParc;
+            else g27[m - 13] = valParc;
+          }
+        }
+        return {
+          id: "d" + (i + 1),
+          data: r[0],
+          desc: r[1],
+          cat: r[2],
+          conta: r[3],
+          tipo: r[4],
+          valTotal: r[5],
+          numParc: numParc,
+          mesInic: mesInic,
+          valParc: valParc,
+          g26: g26,
+          g27: g27
+        };
+      });
+    }
+
+    function construirReceitasInteligentes() {
+      const lista = [];
+      for (let idxMes = 1; idxMes <= 24; idxMes++) {
+        const ano = idxMes <= 12 ? 2026 : 2027;
+        const m = idxMes <= 12 ? idxMes : idxMes - 12;
+        const dStr = `05/${String(m).padStart(2,'0')}/${ano}`;
+        const jaRecebidoPadrao = (ano === 2026 && m <= 10);
+
+        lista.push({
+          id: `rec_psf_${ano}_${m}`, ano, mes: m, data: dStr,
+          desc: "Salário Mensal / Pró-Labore", cat: "Salário PSF", valor: 12990.0,
+          recebido: jaRecebidoPadrao
+        });
+
+        if (idxMes >= 4) {
+          lista.push({
+            id: `rec_core_${ano}_${m}`, ano, mes: m, data: `15/${String(m).padStart(2,'0')}/${ano}`,
+            desc: "CORE Plantão Fixo", cat: "Salário Core", valor: 6400.0,
+            recebido: jaRecebidoPadrao
+          });
+        }
+
+        if (ano === 2026 && m === 9) {
+          lista.push({ id: `rec_extra_2026_9`, ano: 2026, mes: 9, data: `16/09/2026`, desc: "CORE Extras + Adicional noturno", cat: "Salário Core", valor: 1948.0, recebido: true });
+        } else if (ano === 2026 && m === 10) {
+          lista.push({ id: `rec_extra_2026_10`, ano: 2026, mes: 10, data: `16/10/2026`, desc: "CORE Extras + Adicional noturno", cat: "Salário Core", valor: 3000.0, recebido: true });
+        } else if (idxMes >= 11) {
+          lista.push({ id: `rec_extra_${ano}_${m}`, ano: 2026, mes: m, data: `16/${String(m).padStart(2,'0')}/${ano}`, desc: "CORE Extras + Adicional noturno (Ajustar valor)", cat: "Salário Core", valor: 2000.0, recebido: false });
+        }
+
+        if (idxMes >= 6 && idxMes <= 23) {
+          const parc = String(idxMes - 6 + 1).padStart(2, '0');
+          lista.push({
+            id: `rec_jana_iph_${ano}_${m}`, ano, mes: m, data: `20/${String(m).padStart(2,'0')}/${ano}`,
+            desc: `Iphone 15 Jana (${parc}/18)`, cat: "Jana ❤️", valor: 210.0,
+            recebido: (ano === 2026 && m <= 9)
+          });
+        }
+
+        if (idxMes >= 8 && idxMes <= 19) {
+          const parc = String(idxMes - 8 + 1).padStart(2, '0');
+          lista.push({
+            id: `rec_jana_dent_${ano}_${m}`, ano, mes: m, data: `20/${String(m).padStart(2,'0')}/${ano}`,
+            desc: `Dentista Jana (${parc}/12)`, cat: "Jana ❤️", valor: 176.49,
+            recebido: (ano === 2026 && m <= 9)
+          });
+        }
+
+        lista.push({
+          id: `rec_pai_icloud_${ano}_${m}`, ano, mes: m, data: `10/${String(m).padStart(2,'0')}/${ano}`,
+          desc: "iCloud pai", cat: "Pai", valor: 50.0,
+          recebido: jaRecebidoPadrao
+        });
+
+        if (ano === 2026 && m <= 12) {
+          const parc = String(m).padStart(2, '0');
+          lista.push({
+            id: `rec_pai_isa_${ano}_${m}`, ano, mes: m, data: `10/${String(m).padStart(2,'0')}/${ano}`,
+            desc: `Curso online da Isa (${parc}/12)`, cat: "Pai", valor: 155.64,
+            recebido: jaRecebidoPadrao
+          });
+        }
+
+        if (idxMes >= 3 && idxMes <= 14) {
+          const parc = String(idxMes - 3 + 1).padStart(2, '0');
+          lista.push({
+            id: `rec_gui_nivus_${ano}_${m}`, ano, mes: m, data: `10/${String(m).padStart(2,'0')}/${ano}`,
+            desc: `Acessório Nivus (${parc}/12)`, cat: "Guilherme", valor: 665.0,
+            recebido: jaRecebidoPadrao
+          });
+        }
+      }
+      return lista;
+    }
+
+    function construirStatusOriginal(despesas) {
+      const st = {};
+      for (let m = 1; m <= 9; m++) {
+        despesas.forEach(d => {
+          if (d.g26[m - 1] !== 0) st[`2026-${m}_${d.id}`] = true;
+        });
+      }
+      return st;
+    }
+
+    let despesasBase = [];
+    let statusPagamento = {};
+    let receitas = [];
+    let metasCategorias = {};
+
+    function carregarDadosSalvos() {
+      const mestraPadrao = construirMestraOriginal();
+      const receitasPadrao = construirReceitasInteligentes();
+      const statusPadrao = construirStatusOriginal(mestraPadrao);
+
+      try {
+        const catsDespSalvas = localStorage.getItem('financas_matheus_v11_cats_desp');
+        if (catsDespSalvas) CATEGORIAS_OPCOES = JSON.parse(catsDespSalvas);
+
+        const catsRecSalvas = localStorage.getItem('financas_matheus_v11_cats_rec');
+        if (catsRecSalvas) CATEGORIAS_RECEITA = JSON.parse(catsRecSalvas);
+
+        const mestraSalva = localStorage.getItem('financas_matheus_v11_mestra') || localStorage.getItem('financas_matheus_v10_mestra');
+        const parsedMestra = mestraSalva ? JSON.parse(mestraSalva) : null;
+        despesasBase = (Array.isArray(parsedMestra) && parsedMestra.length >= 70) ? parsedMestra : mestraPadrao;
+
+        const statusSalvo = localStorage.getItem('financas_matheus_v11_status') || localStorage.getItem('financas_matheus_v10_status');
+        statusPagamento = statusSalvo ? JSON.parse(statusSalvo) : statusPadrao;
+
+        const receitasSalvas = localStorage.getItem('financas_matheus_v11_receitas');
+        const parsedRec = receitasSalvas ? JSON.parse(receitasSalvas) : null;
+        receitas = (Array.isArray(parsedRec) && parsedRec.length >= 80) ? parsedRec : receitasPadrao;
+
+        const metasSalvas = localStorage.getItem('financas_matheus_v11_metas') || localStorage.getItem('financas_matheus_v10_metas');
+        metasCategorias = metasSalvas ? JSON.parse(metasSalvas) : {};
+      } catch (e) {
+        despesasBase = mestraPadrao;
+        statusPagamento = statusPadrao;
+        receitas = receitasPadrao;
+        metasCategorias = {};
+      }
+    }
+
+    function recalcularGradeItem(d) {
+      d.g26 = [0,0,0,0,0,0,0,0,0,0,0,0];
+      d.g27 = [0,0,0,0,0,0,0,0,0,0,0,0];
+
+      const startM = parseInt(d.mesInic) || 1;
+      const numP = parseInt(d.numParc) || 1;
+      const vParc = parseFloat(d.valParc) || 0;
+
+      for (let m = 1; m <= 24; m++) {
+        if (m >= startM && m < startM + numP) {
+          if (m <= 12) d.g26[m - 1] = vParc;
+          else d.g27[m - 13] = vParc;
+        }
+      }
+    }
+
+    async function salvarDadosLocalmente() {
+      try {
+        localStorage.setItem('financas_matheus_v11_mestra', JSON.stringify(despesasBase));
+        localStorage.setItem('financas_matheus_v11_status', JSON.stringify(statusPagamento));
+        localStorage.setItem('financas_matheus_v11_receitas', JSON.stringify(receitas));
+        localStorage.setItem('financas_matheus_v11_metas', JSON.stringify(metasCategorias));
+        localStorage.setItem('financas_matheus_v11_cats_desp', JSON.stringify(CATEGORIAS_OPCOES));
+        localStorage.setItem('financas_matheus_v11_cats_rec', JSON.stringify(CATEGORIAS_RECEITA));
+      } catch (e) {}
+
+      try {
+        await setDoc(DOC_REF, {
+          despesasBase: JSON.stringify(despesasBase),
+          statusPagamento: JSON.stringify(statusPagamento),
+          receitas: JSON.stringify(receitas),
+          metasCategorias: JSON.stringify(metasCategorias),
+          CATEGORIAS_OPCOES: JSON.stringify(CATEGORIAS_OPCOES),
+          CATEGORIAS_RECEITA: JSON.stringify(CATEGORIAS_RECEITA),
+          atualizadoEm: new Date().toISOString()
+        });
+      } catch (erro) {
+        console.error("Erro ao sincronizar com Firestore:", erro);
+      }
+    }
+
+    onSnapshot(DOC_REF, (snap) => {
+      if (snap.exists()) {
+        const dados = snap.data();
+        if (dados.despesasBase) despesasBase = JSON.parse(dados.despesasBase);
+        if (dados.statusPagamento) statusPagamento = JSON.parse(dados.statusPagamento);
+        if (dados.receitas) receitas = JSON.parse(dados.receitas);
+        if (dados.metasCategorias) metasCategorias = JSON.parse(dados.metasCategorias);
+        if (dados.CATEGORIAS_OPCOES) CATEGORIAS_OPCOES = JSON.parse(dados.CATEGORIAS_OPCOES);
+        if (dados.CATEGORIAS_RECEITA) CATEGORIAS_RECEITA = JSON.parse(dados.CATEGORIAS_RECEITA);
+        
+        atualizarTudo();
+        renderizarGradeMestra();
+      } else {
+        salvarDadosLocalmente();
+      }
+    });
+
+    const orcamentoTetoPadrao = 21600.00;
+
+    function formatarMoedaBR(v) {
+      return (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatarMoeda(v) {
+      return 'R$ ' + formatarMoedaBR(v);
+    }
+
+    function obterPontuacaoOrdenacao(item) {
+      const conta = (item.conta || '').toLowerCase();
+      let prioridadeOrigem = 99;
+
+      if (conta === 'pai' || conta === 'mãe' || conta === 'mae' || conta === 'welder') {
+        prioridadeOrigem = 1;
+      } else if (conta === 'boleto') {
+        prioridadeOrigem = 2;
+      } else if (conta === 'nubank') {
+        prioridadeOrigem = 3;
+      } else if (conta === 'portobank') {
+        prioridadeOrigem = 4;
+      } else if (conta === 'santander') {
+        prioridadeOrigem = 5;
+      } else {
+        prioridadeOrigem = 6;
+      }
+
+      const ehParcelado = (item.numParc && item.numParc > 1) || item.tipo === 'Parcelado' ? 0 : 1;
+      return { prioridadeOrigem, ehParcelado };
+    }
+
+    function mudarAba(aba) {
+      ['acompanhamento', 'receitas', 'metas', 'categorias', 'grade'].forEach(a => {
+        document.getElementById('view-' + a).classList.add('hidden');
+        document.getElementById('tab-' + a).className = 'py-3.5 font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-2';
+      });
+      document.getElementById('view-' + aba).classList.remove('hidden');
+      document.getElementById('tab-' + aba).className = 'py-3.5 font-bold border-b-2 border-emerald-600 text-emerald-700 whitespace-nowrap flex items-center gap-2';
+
+      if (aba === 'grade') renderizarGradeMestra();
+      if (aba === 'metas') renderizarMetas();
+      if (aba === 'categorias') renderizarAbaCategorias();
+      if (aba === 'receitas') renderizarReceitas();
+    }
+
+    function atualizarPeriodo() {
+      atualizarTudo();
+    }
+
+    function chavePeriodo(id) {
+      const mes = document.getElementById('sel-mes').value;
+      const ano = document.getElementById('sel-ano').value;
+      return `${ano}-${mes}_${id}`;
+    }
+
+    function alternarStatusExtrato(id) {
+      const chave = chavePeriodo(id);
+      statusPagamento[chave] = !statusPagamento[chave];
+      salvarDadosLocalmente();
+      atualizarTudo();
+    }
+
+    function alternarChecklistIndividual(itemId, isChecked) {
+      const chave = chavePeriodo(itemId);
+      statusPagamento[chave] = isChecked;
+      salvarDadosLocalmente();
+      atualizarTudo();
+    }
+
+    function alternarChecklistCartao(conta, isChecked) {
+      const mes = parseInt(document.getElementById('sel-mes').value);
+      const ano = parseInt(document.getElementById('sel-ano').value);
+
+      despesasBase.forEach(d => {
+        if (d.conta.toLowerCase() === conta.toLowerCase()) {
+          const val = obterValorNoPeriodo(d, mes, ano);
+          if (val !== 0) {
+            statusPagamento[chavePeriodo(d.id)] = isChecked;
+          }
+        }
+      });
+      salvarDadosLocalmente();
+      atualizarTudo();
+    }
+
+    function alternarRecebimentoReceita(id) {
+      const rec = receitas.find(r => r.id === id);
+      if (rec) {
+        rec.recebido = !rec.recebido;
+        salvarDadosLocalmente();
+        atualizarTudo();
+      }
+    }
+
+    function atualizarCampoReceita(id, campo, valor) {
+      const rec = receitas.find(r => r.id === id);
+      if (rec) {
+        rec[campo] = campo === 'valor' ? (parseFloat(valor) || 0) : valor;
+        salvarDadosLocalmente();
+        atualizarTudo();
+      }
+    }
+
+    function excluirReceita(id) {
+      if (confirm('Deseja excluir este lançamento de receita?')) {
+        receitas = receitas.filter(r => r.id !== id);
+        salvarDadosLocalmente();
+        atualizarTudo();
+      }
+    }
+
+    function obterValorNoPeriodo(item, mes, ano) {
+      const idx = mes - 1;
+      if (ano === 2026 && item.g26) return item.g26[idx] || 0;
+      if (ano === 2027 && item.g27) return item.g27[idx] || 0;
+      return 0;
+    }
+
+    function obterDescricaoDinamica(item, mes, ano) {
+      if (!item.numParc || item.numParc <= 1) {
+        return item.desc;
+      }
+
+      const totalParc = parseInt(item.numParc);
+      const startM = parseInt(item.mesInic);
+      const startAno = 2026;
+
+      const mesRelativo = (ano - startAno) * 12 + (mes - startM) + 1;
+      const nomeBase = item.desc.replace(/\s*\(\d+\/\d+\)/g, '').trim();
+
+      if (mesRelativo >= 1 && mesRelativo <= totalParc) {
+        const pAtual = String(mesRelativo).padStart(2, '0');
+        const pTot = String(totalParc).padStart(2, '0');
+        return `${nomeBase} (${pAtual}/${pTot})`;
+      }
+
+      return item.desc;
+    }
+
+    function atualizarTudo() {
+      const mes = parseInt(document.getElementById('sel-mes').value);
+      const ano = parseInt(document.getElementById('sel-ano').value);
+      const nomeMes = MESES_ABREV[mes - 1];
+
+      document.getElementById('titulo-extrato').innerText = `Extrato de Despesas (${nomeMes} / ${ano})`;
+      document.getElementById('badge-mes-checklist').innerText = `${nomeMes} / ${ano}`;
+      if (document.getElementById('badge-mes-metas')) document.getElementById('badge-mes-metas').innerText = `${nomeMes} / ${ano}`;
+      if (document.getElementById('badge-mes-receitas')) document.getElementById('badge-mes-receitas').innerText = `${nomeMes} / ${ano}`;
+
+      const elCont = document.getElementById('contador-mestra-aba');
+      if (elCont) elCont.innerText = despesasBase.length;
+      const elTxt = document.getElementById('txt-total-ativos');
+      if (elTxt) elTxt.innerText = `${despesasBase.length} Lançamentos Ativos Integrados`;
+
+      const ativas = [];
+      let totalDesp = 0;
+
+      despesasBase.forEach(d => {
+        const val = obterValorNoPeriodo(d, mes, ano);
+        if (val !== 0) {
+          ativas.push({ ...d, valorMes: val });
+          totalDesp += val;
+        }
+      });
+
+      const receitasDoMes = receitas.filter(r => r.ano === ano && r.mes === mes);
+      const rendaEfetivada = receitasDoMes.filter(r => r.recebido).reduce((acc, r) => acc + r.valor, 0);
+      const rendaPendente = receitasDoMes.filter(r => !r.recebido).reduce((acc, r) => acc + r.valor, 0);
+      const saldoReal = rendaEfetivada - totalDesp;
+      const consumoPct = Math.min(Math.round((totalDesp / orcamentoTetoPadrao) * 100), 100);
+
+      document.getElementById('card-renda').innerText = formatarMoeda(rendaEfetivada);
+      document.getElementById('card-renda-sub').innerText = rendaPendente > 0 
+        ? `Faltam cair ${formatarMoeda(rendaPendente)} previstos`
+        : `${receitasDoMes.filter(r => r.recebido).length} entradas confirmadas`;
+
+      document.getElementById('card-despesas').innerText = formatarMoeda(totalDesp);
+      document.getElementById('card-qtd-itens').innerText = `${ativas.length} despesas no mês`;
+
+      const elSaldo = document.getElementById('card-saldo');
+      elSaldo.innerText = formatarMoeda(saldoReal);
+      elSaldo.className = 'text-2xl font-extrabold tracking-tight ' + (saldoReal >= 0 ? 'text-emerald-600' : 'text-rose-600');
+      document.getElementById('card-saldo-sub').innerText = saldoReal >= 0 ? 'Superávit com dinheiro em conta' : 'Déficit atual no período';
+
+      document.getElementById('card-consumo-pct').innerText = consumoPct + '%';
+      const barra = document.getElementById('barra-consumo');
+      barra.style.width = consumoPct + '%';
+      barra.className = 'h-2 rounded-full transition-all duration-500 ' + (consumoPct > 100 ? 'bg-rose-500' : consumoPct > 80 ? 'bg-amber-500' : 'bg-emerald-600');
+
+      popularSelectCategoriasReceita();
+      renderizarExtrato(ativas);
+      renderizarChecklist(ativas);
+      renderizarReceitas();
+      renderizarMetas();
+      if (!document.getElementById('view-categorias').classList.contains('hidden')) {
+        renderizarAbaCategorias();
+      }
+    }
+
+    function renderizarExtrato(listaAtivas) {
+      const mes = parseInt(document.getElementById('sel-mes').value);
+      const ano = parseInt(document.getElementById('sel-ano').value);
+
+      if (!listaAtivas) {
+        listaAtivas = [];
+        despesasBase.forEach(d => {
+          const val = obterValorNoPeriodo(d, mes, ano);
+          if (val !== 0) listaAtivas.push({ ...d, valorMes: val });
+        });
+      }
+
+      listaAtivas.sort((a, b) => {
+        const pA = obterPontuacaoOrdenacao(a);
+        const pB = obterPontuacaoOrdenacao(b);
+
+        if (pA.prioridadeOrigem !== pB.prioridadeOrigem) {
+          return pA.prioridadeOrigem - pB.prioridadeOrigem;
+        }
+        if (pA.ehParcelado !== pB.ehParcelado) {
+          return pA.ehParcelado - pB.ehParcelado;
+        }
+        return Math.abs(b.valorMes) - Math.abs(a.valorMes);
+      });
+
+      document.getElementById('contador-extrato').innerText = `${listaAtivas.length} despesas`;
+      const corpo = document.getElementById('corpo-extrato');
+      corpo.innerHTML = '';
+
+      if (listaAtivas.length === 0) {
+        corpo.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400">Nenhum lançamento cadastrado neste mês.</td></tr>`;
+        return;
+      }
+
+      listaAtivas.forEach(d => {
+        const isPago = statusPagamento[chavePeriodo(d.id)] || false;
+        const corLinha = isPago ? 'linha-paga' : 'hover:bg-slate-50/80';
+        const txtStatus = isPago ? 'Pago ✅' : 'Pendente ⏳';
+        const badgeStatus = isPago ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-50 text-amber-700 border-amber-200';
+        const descDinamica = obterDescricaoDinamica(d, mes, ano);
+        const mesInicLabel = (d.mesInic && d.mesInic >= 1 && d.mesInic <= 12) ? MESES_ABREV[d.mesInic - 1] : 'Ant.';
+
+        corpo.innerHTML += `
+          <tr class="${corLinha} transition-colors">
+            <td class="py-3 px-4 whitespace-nowrap">${renderizarBadgeConta(d.conta)}</td>
+            <td class="py-3 px-4 text-slate-900 font-bold">${descDinamica}</td>
+            <td class="py-3 px-4">
+              <span class="px-2.5 py-1 rounded-md text-[10px] font-semibold bg-white/80 text-slate-600 border border-slate-200">${d.cat}</span>
+            </td>
+            <td class="py-3 px-4 whitespace-nowrap text-emerald-800 font-mono text-xs font-semibold">${mesInicLabel}</td>
+            <td class="py-3 px-4 text-right text-slate-900 font-extrabold whitespace-nowrap font-mono text-xs">${formatarMoeda(d.valorMes)}</td>
+            <td class="py-3 px-4 text-center">
+              <button onclick="alternarStatusExtrato('${d.id}')" class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border ${badgeStatus} transition-all">${txtStatus}</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderizarChecklist(ativas) {
+      const mes = parseInt(document.getElementById('sel-mes').value);
+      const ano = parseInt(document.getElementById('sel-ano').value);
+      const corpoChk = document.getElementById('corpo-checklist');
+      corpoChk.innerHTML = '';
+      let totalPago = 0;
+
+      if (ativas.length === 0) {
+        corpoChk.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-slate-400 text-xs">Sem pendências para este período.</td></tr>`;
+        document.getElementById('total-pago-checklist').innerText = 'R$ 0,00';
+        return;
+      }
+
+      const itensIndividuais = ativas.filter(d => {
+        const c = d.conta.toLowerCase();
+        return c === 'boleto' || c === 'pai' || c === 'mãe' || c === 'mae' || c === 'welder';
+      }).sort((a, b) => {
+        const pA = obterPontuacaoOrdenacao(a);
+        const pB = obterPontuacaoOrdenacao(b);
+        return pA.prioridadeOrigem - pB.prioridadeOrigem;
+      });
+
+      itensIndividuais.forEach(item => {
+        const isChecked = statusPagamento[chavePeriodo(item.id)] || false;
+        if (isChecked) totalPago += item.valorMes;
+        const descDinamica = obterDescricaoDinamica(item, mes, ano);
+
+        corpoChk.innerHTML += `
+          <tr class="${isChecked ? 'linha-paga' : 'hover:bg-slate-50'} transition-colors">
+            <td class="py-2.5 pl-2 pr-2">
+              <div class="font-bold text-slate-900 text-xs">${descDinamica}</div>
+              <div class="text-[10px] text-slate-500 font-semibold mt-0.5">${renderizarBadgeConta(item.conta)}</div>
+            </td>
+            <td class="py-2.5 text-right font-extrabold text-slate-800 whitespace-nowrap font-mono text-xs">${formatarMoeda(item.valorMes)}</td>
+            <td class="py-2.5 text-center">
+              <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="alternarChecklistIndividual('${item.id}', this.checked)" class="w-4 h-4 cursor-pointer rounded border-slate-300" />
+            </td>
+          </tr>
+        `;
+      });
+
+      const gruposCartoes = {};
+      ativas.filter(d => {
+        const c = d.conta.toLowerCase();
+        return c !== 'boleto' && c !== 'pai' && c !== 'mãe' && c !== 'mae' && c !== 'welder';
+      }).forEach(d => {
+        gruposCartoes[d.conta] = (gruposCartoes[d.conta] || 0) + d.valorMes;
+      });
+
+      Object.keys(gruposCartoes).forEach(conta => {
+        const val = gruposCartoes[conta];
+        const itensDoCartao = ativas.filter(d => d.conta === conta);
+        const allChecked = itensDoCartao.length > 0 && itensDoCartao.every(d => statusPagamento[chavePeriodo(d.id)] === true);
+
+        if (allChecked) totalPago += val;
+
+        corpoChk.innerHTML += `
+          <tr class="${allChecked ? 'linha-paga' : 'bg-slate-50/40 hover:bg-slate-50'} transition-colors">
+            <td class="py-2.5 pl-2 pr-2">
+              <div class="font-extrabold text-slate-900 text-xs flex items-center gap-1.5">Fatura ${renderizarBadgeConta(conta)}</div>
+              <div class="text-[10px] text-slate-400 font-medium mt-0.5">${itensDoCartao.length} compras no mês</div>
+            </td>
+            <td class="py-2.5 text-right font-extrabold text-slate-800 whitespace-nowrap font-mono text-xs">${formatarMoeda(val)}</td>
+            <td class="py-2.5 text-center">
+              <input type="checkbox" ${allChecked ? 'checked' : ''} onchange="alternarChecklistCartao('${conta}', this.checked)" class="w-4 h-4 cursor-pointer rounded border-slate-300" />
+            </td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('total-pago-checklist').innerText = formatarMoeda(totalPago);
+    }
+
+    function renderizarMetas() {
+      const mes = parseInt(document.getElementById('sel-mes').value);
+      const ano = parseInt(document.getElementById('sel-ano').value);
+      const grid = document.getElementById('grid-metas');
+      if (!grid) return;
+
+      grid.innerHTML = '';
+
+      const gastosPorCat = {};
+      despesasBase.forEach(d => {
+        const val = obterValorNoPeriodo(d, mes, ano);
+        if (val > 0) {
+          gastosPorCat[d.cat] = (gastosPorCat[d.cat] || 0) + val;
+        }
+      });
+
+      CATEGORIAS_OPCOES.forEach(cat => {
+        const chaveMeta = `${ano}-${mes}_${cat}`;
+        const gasto = gastosPorCat[cat] || 0;
+        const metaPadraoCat = metasCategorias[`DEFAULT_${cat}`] !== undefined ? metasCategorias[`DEFAULT_${cat}`] : (METAS_BASE[cat] || 1000);
+        const meta = metasCategorias[chaveMeta] !== undefined ? metasCategorias[chaveMeta] : metaPadraoCat;
+        const pct = meta > 0 ? Math.round((gasto / meta) * 100) : (gasto > 0 ? 100 : 0);
+        
+        const corBarra = pct > 100 ? 'bg-rose-500' : (pct > 80 ? 'bg-amber-500' : 'bg-emerald-600');
+        const corTexto = pct > 100 ? 'text-rose-600 font-bold' : (pct > 80 ? 'text-amber-600 font-bold' : 'text-slate-700');
+
+        grid.innerHTML += `
+          <div class="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-4 shadow-sm space-y-2.5">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-extrabold text-slate-800">${cat}</span>
+              <span class="${corTexto} text-[11px]">${pct}% utilizado</span>
+            </div>
+            
+            <div class="w-full bg-slate-200/80 rounded-full h-2 overflow-hidden">
+              <div class="${corBarra} h-2 rounded-full transition-all duration-300" style="width: ${Math.min(pct, 100)}%"></div>
+            </div>
+
+            <div class="flex justify-between items-center text-[11px] text-slate-500 pt-1">
+              <span>Gasto no mês: <strong class="text-slate-800 font-mono">${formatarMoeda(gasto)}</strong></span>
+              <div class="flex items-center gap-1">
+                <span>Meta: R$</span>
+                <input 
+                  type="number" 
+                  value="${meta}" 
+                  onchange="atualizarMetaCategoria('${cat}', this.value)" 
+                  class="w-20 bg-white border border-slate-300 rounded-lg px-2 py-0.5 text-right font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-600 text-xs font-mono shadow-sm"
+                />
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function atualizarMetaCategoria(cat, valor) {
+      const mes = document.getElementById('sel-mes').value;
+      const ano = document.getElementById('sel-ano').value;
+      const chaveMeta = `${ano}-${mes}_${cat}`;
+      metasCategorias[chaveMeta] = parseFloat(valor) || 0;
+      salvarDadosLocalmente();
+      renderizarMetas();
+    }
+
+    function alternarInputMetaNovaCat() {
+      const tipo = document.getElementById('nova-cat-tipo').value;
+      const box = document.getElementById('box-nova-cat-meta');
+      box.style.display = tipo === 'despesa' ? 'block' : 'none';
+    }
+
+    function popularSelectCategoriasReceita() {
+      const sel = document.getElementById('rec-cat');
+      if (!sel) return;
+      const atual = sel.value;
+      sel.innerHTML = CATEGORIAS_RECEITA.map(c => `<option value="${c}">${c}</option>`).join('');
+      if (CATEGORIAS_RECEITA.includes(atual)) sel.value = atual;
+    }
+
+    function criarNovaCategoria() {
+      const nome = document.getElementById('nova-cat-nome').value.trim();
+      const tipo = document.getElementById('nova-cat-tipo').value;
+      const meta = parseFloat(document.getElementById('nova-cat-meta').value) || 500;
+
+      if (!nome) {
+        alert('Digite um nome para a nova categoria.');
+        return;
+      }
+
+      if (tipo === 'despesa') {
+        if (CATEGORIAS_OPCOES.some(c => c.toLowerCase() === nome.toLowerCase())) {
+          alert('Essa categoria de despesa já existe.');
+          return;
+        }
+        CATEGORIAS_OPCOES.push(nome);
+        metasCategorias[`DEFAULT_${nome}`] = meta;
+      } else {
+        if (CATEGORIAS_RECEITA.some(c => c.toLowerCase() === nome.toLowerCase())) {
+          alert('Essa categoria de receita já existe.');
+          return;
+        }
+        CATEGORIAS_RECEITA.push(nome);
+      }
+
+      document.getElementById('nova-cat-nome').value = '';
+      salvarDadosLocalmente();
+      atualizarTudo();
+      renderizarAbaCategorias();
+      alert(`Categoria "${nome}" criada com sucesso!`);
+    }
+
+    function renomearCategoriaDespesa(nomeAntigo, nomeNovo) {
+      const limpo = nomeNovo.trim();
+      if (!limpo || limpo === nomeAntigo) return;
+
+      const idx = CATEGORIAS_OPCOES.indexOf(nomeAntigo);
+      if (idx !== -1) CATEGORIAS_OPCOES[idx] = limpo;
+
+      despesasBase.forEach(d => {
+        if (d.cat === nomeAntigo) d.cat = limpo;
+      });
+
+      if (metasCategorias[`DEFAULT_${nomeAntigo}`] !== undefined) {
+        metasCategorias[`DEFAULT_${limpo}`] = metasCategorias[`DEFAULT_${nomeAntigo}`];
+      }
+
+      salvarDadosLocalmente();
+      atualizarTudo();
+      renderizarAbaCategorias();
+    }
+
+    function atualizarMetaPadraoCategoria(cat, valor) {
+      metasCategorias[`DEFAULT_${cat}`] = parseFloat(valor) || 0;
+      salvarDadosLocalmente();
+      atualizarTudo();
+    }
+
+    function excluirCategoriaDespesa(cat) {
+      if (cat === 'Outros') {
+        alert('A categoria "Outros" é padrão do sistema e não pode ser removida.');
+        return;
+      }
+      const qtd = despesasBase.filter(d => d.cat === cat).length;
+      const msg = qtd > 0 
+        ? `Existem ${qtd} lançamentos na categoria "${cat}". Ao excluir, eles serão movidos para "Outros". Confirmar?`
+        : `Deseja excluir a categoria "${cat}"?`;
+
+      if (confirm(msg)) {
+        CATEGORIAS_OPCOES = CATEGORIAS_OPCOES.filter(c => c !== cat);
+        despesasBase.forEach(d => {
+          if (d.cat === cat) d.cat = 'Outros';
+        });
+        salvarDadosLocalmente();
+        atualizarTudo();
+        renderizarAbaCategorias();
+      }
+    }
+
+    function excluirCategoriaReceita(cat) {
+      if (CATEGORIAS_RECEITA.length <= 1) return;
+      if (confirm(`Deseja remover a categoria de receita "${cat}"?`)) {
+        CATEGORIAS_RECEITA = CATEGORIAS_RECEITA.filter(c => c !== cat);
+        salvarDadosLocalmente();
+        atualizarTudo();
+        renderizarAbaCategorias();
+      }
+    }
+
+    function aplicarOtimizacaoSugerida() {
+      let alterados = 0;
+
+      const idxBarb = CATEGORIAS_OPCOES.indexOf('Barbearia');
+      if (idxBarb !== -1) CATEGORIAS_OPCOES[idxBarb] = 'Cuidados Pessoais';
+      else if (!CATEGORIAS_OPCOES.includes('Cuidados Pessoais')) CATEGORIAS_OPCOES.push('Cuidados Pessoais');
+
+      const idxCont = CATEGORIAS_OPCOES.indexOf('Contabilidade');
+      if (idxCont !== -1) CATEGORIAS_OPCOES[idxCont] = 'Profissional / PJ';
+      else if (!CATEGORIAS_OPCOES.includes('Profissional / PJ')) CATEGORIAS_OPCOES.push('Profissional / PJ');
+
+      despesasBase.forEach(d => {
+        const descLow = (d.desc || '').toLowerCase();
+        if ((descLow.includes('uber') || descLow.includes('99*')) && d.cat !== 'Uber') {
+          d.cat = 'Uber';
+          alterados++;
+        }
+        if (descLow.includes('curso otorrino') && d.cat !== 'Educação') {
+          d.cat = 'Educação';
+          alterados++;
+        }
+        if ((d.cat === 'Barbearia' || descLow.includes('bebe do corte') || descLow.includes('sobrancelha')) && d.cat !== 'Cuidados Pessoais') {
+          d.cat = 'Cuidados Pessoais';
+          alterados++;
+        }
+        if (d.cat === 'Contabilidade') {
+          d.cat = 'Profissional / PJ';
+          alterados++;
+        }
+      });
+
+      salvarDadosLocalmente();
+      atualizarTudo();
+      renderizarAbaCategorias();
+      alert(`Otimização concluída! ${alterados} lançamentos foram reclassificados.`);
+    }
+
+    function renderizarAbaCategorias() {
+      const contDesp = document.getElementById('lista-categorias-despesa');
+      const contRec = document.getElementById('lista-categorias-receita');
+      if (!contDesp || !contRec) return;
+
+      contDesp.innerHTML = '';
+      CATEGORIAS_OPCOES.forEach(cat => {
+        const qtd = despesasBase.filter(d => d.cat === cat).length;
+        const metaPadrao = metasCategorias[`DEFAULT_${cat}`] !== undefined ? metasCategorias[`DEFAULT_${cat}`] : (METAS_BASE[cat] || 1000);
+
+        contDesp.innerHTML += `
+          <div class="py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50 px-2 rounded-xl transition-colors">
+            <div class="flex items-center gap-2 flex-1">
+              <input 
+                type="text" 
+                value="${cat}" 
+                onchange="renomearCategoriaDespesa('${cat}', this.value)" 
+                class="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-600 w-48"
+                title="Clique para renomear a categoria"
+              />
+              <span class="text-[11px] text-slate-400 font-medium">${qtd} itens</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-slate-500">Meta Padrão: R$</span>
+              <input 
+                type="number" 
+                step="50"
+                value="${metaPadrao}" 
+                onchange="atualizarMetaPadraoCategoria('${cat}', this.value)" 
+                class="w-20 bg-white border border-slate-200 rounded-lg px-2 py-1 text-right text-xs font-mono font-bold text-slate-800"
+              />
+              <button onclick="excluirCategoriaDespesa('${cat}')" class="text-rose-500 hover:text-rose-700 font-bold px-2 py-1 text-xs">✕</button>
+            </div>
+          </div>
+        `;
+      });
+
+      contRec.innerHTML = '';
+      CATEGORIAS_RECEITA.forEach(cat => {
+        contRec.innerHTML += `
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+            <span>${cat}</span>
+            <button onclick="excluirCategoriaReceita('${cat}')" class="text-emerald-600 hover:text-rose-600 font-extrabold">✕</button>
+          </div>
+        `;
+      });
+    }
+
+    function renderizarGradeMestra() {
+      const corpo = document.getElementById('corpo-grade-mestra');
+      if (!corpo) return;
+      corpo.innerHTML = '';
+      const termoBusca = (document.getElementById('busca-grade') ? document.getElementById('busca-grade').value : '').trim().toLowerCase();
+
+      const filtradas = despesasBase.filter(d => {
+        if (!termoBusca) return true;
+        return (d.desc || '').toLowerCase().includes(termoBusca) || (d.cat || '').toLowerCase().includes(termoBusca) || (d.conta || '').toLowerCase().includes(termoBusca);
+      });
+
+      if (filtradas.length === 0) {
+        corpo.innerHTML = `<tr><td colspan="23" class="py-8 text-center text-slate-400 font-medium">Nenhum lançamento encontrado.</td></tr>`;
+        return;
+      }
+
+      let htmlRows = '';
+      filtradas.forEach(d => {
+        const total2026 = (d.g26 || []).reduce((acc, v) => acc + v, 0);
+
+        let colunasMeses = '';
+        for (let m = 0; m < 12; m++) {
+          const valM = d.g26 ? d.g26[m] : 0;
+          colunasMeses += `
+            <td class="text-right p-0">
+              <input type="number" step="0.01" value="${valM.toFixed(2)}" onchange="atualizarMesGrade('${d.id}', ${m}, this.value)" class="text-right font-mono" />
+            </td>
+          `;
+        }
+
+        htmlRows += `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-0"><input type="text" value="${d.data || ''}" onchange="atualizarCampoGrade('${d.id}', 'data', this.value)" class="text-center text-slate-500 font-mono" /></td>
+            <td class="p-0"><input type="text" value="${d.desc}" onchange="atualizarCampoGrade('${d.id}', 'desc', this.value)" class="font-bold text-slate-800" /></td>
+            <td class="p-0">
+              <select onchange="atualizarCampoGrade('${d.id}', 'cat', this.value)" class="text-slate-700 font-semibold bg-transparent">
+                ${CATEGORIAS_OPCOES.map(c => `<option value="${c}" ${c === d.cat ? 'selected' : ''}>${c}</option>`).join('')}
+              </select>
+            </td>
+            <td class="p-0">
+              <select onchange="atualizarCampoGrade('${d.id}', 'conta', this.value)" class="text-slate-700 font-bold bg-transparent">
+                ${CONTAS_OPCOES.map(c => `<option value="${c}" ${c === d.conta ? 'selected' : ''}>${c}</option>`).join('')}
+              </select>
+            </td>
+            <td class="p-0">
+              <select onchange="atualizarCampoGrade('${d.id}', 'tipo', this.value)" class="text-slate-700 font-medium bg-transparent">
+                <option value="Parcelado" ${d.tipo === 'Parcelado' ? 'selected' : ''}>Parcelado</option>
+                <option value="À Vista" ${d.tipo === 'À Vista' || d.tipo === 'Variável' ? 'selected' : ''}>À Vista</option>
+                <option value="Fixo" ${d.tipo === 'Fixo' ? 'selected' : ''}>Fixo</option>
+              </select>
+            </td>
+            <td class="p-0"><input type="number" step="0.01" value="${(d.valTotal || 0).toFixed(2)}" onchange="atualizarCalculoGrade('${d.id}', 'valTotal', parseFloat(this.value))" class="text-right font-extrabold text-slate-900 font-mono" /></td>
+            <td class="p-0"><input type="number" min="1" value="${d.numParc || 1}" onchange="atualizarCalculoGrade('${d.id}', 'numParc', parseInt(this.value))" class="text-center font-bold font-mono" /></td>
+            <td class="p-0"><input type="number" min="-12" max="12" value="${d.mesInic || 1}" onchange="atualizarCalculoGrade('${d.id}', 'mesInic', parseInt(this.value))" class="text-center font-bold text-emerald-800 font-mono" /></td>
+            <td class="p-0"><input type="number" step="0.01" value="${(d.valParc || 0).toFixed(2)}" onchange="atualizarCalculoGrade('${d.id}', 'valParc', parseFloat(this.value))" class="text-right font-extrabold text-emerald-700 font-mono" /></td>
+            ${colunasMeses}
+            <td class="text-right px-2.5 py-1 font-extrabold text-slate-900 bg-slate-50 font-mono">${formatarMoeda(total2026)}</td>
+            <td class="text-center py-1">
+              <button onclick="removerLinhaGrade('${d.id}')" class="text-rose-500 hover:text-rose-700 font-bold px-1 text-xs">✕</button>
+            </td>
+          </tr>
+        `;
+      });
+      corpo.innerHTML = htmlRows;
+    }
+
+    function atualizarCampoGrade(id, campo, valor) {
+      const item = despesasBase.find(d => d.id === id);
+      if (item) {
+        item[campo] = valor;
+        salvarDadosLocalmente();
+        atualizarTudo();
+      }
+    }
+
+    function atualizarCalculoGrade(id, campoAlterado, valor) {
+      const item = despesasBase.find(d => d.id === id);
+      if (item) {
+        item[campoAlterado] = valor;
+
+        if (campoAlterado === 'valTotal' && item.numParc > 1) {
+          item.valParc = item.valTotal / item.numParc;
+        } else if (campoAlterado === 'valParc') {
+          item.valTotal = item.valParc * item.numParc;
+        }
+
+        recalcularGradeItem(item);
+        salvarDadosLocalmente();
+        renderizarGradeMestra();
+        atualizarTudo();
+      }
+    }
+
+    function atualizarMesGrade(id, mesIdx, valor) {
+      const item = despesasBase.find(d => d.id === id);
+      if (item && item.g26) {
+        item.g26[mesIdx] = parseFloat(valor) || 0;
+        salvarDadosLocalmente();
+        atualizarTudo();
+      }
+    }
+
+    function adicionarLinhaEmBranco() {
+      const mesAtual = parseInt(document.getElementById('sel-mes').value);
+      const novoItem = {
+        id: 'new_' + Date.now(),
+        data: `01/${String(mesAtual).padStart(2, '0')}/2026`,
+        desc: 'Novo Lançamento',
+        cat: 'Outros',
+        conta: 'Nubank',
+        tipo: 'À Vista',
+        valTotal: 100.00,
+        numParc: 1,
+        mesInic: mesAtual,
+        valParc: 100.00,
+        g26: [0,0,0,0,0,0,0,0,0,0,0,0],
+        g27: [0,0,0,0,0,0,0,0,0,0,0,0]
+      };
+
+      recalcularGradeItem(novoItem);
+      despesasBase.unshift(novoItem);
+      salvarDadosLocalmente();
+      renderizarGradeMestra();
+      atualizarTudo();
+    }
+
+    function removerLinhaGrade(id) {
+      if (confirm('Deseja excluir este item da Planilha Mestra?')) {
+        despesasBase = despesasBase.filter(d => d.id !== id);
+        salvarDadosLocalmente();
+        renderizarGradeMestra();
+        atualizarTudo();
+      }
+    }
+
+    function abrirModalImportarIA() {
+      document.getElementById('modal-importar-ia').classList.remove('hidden');
+    }
+
+    function fecharModalImportarIA() {
+      document.getElementById('modal-importar-ia').classList.add('hidden');
+      document.getElementById('texto-importacao-ia').value = '';
+    }
+
+    function confirmarImportacaoIA() {
+      const texto = document.getElementById('texto-importacao-ia').value.trim();
+      if (!texto) return;
+
+      try {
+        const novosItens = JSON.parse(texto);
+        if (Array.isArray(novosItens) && novosItens.length > 0) {
+          novosItens.forEach((it, idx) => {
+            if (Array.isArray(it)) {
+              const obj = {
+                id: 'ia_' + Date.now() + '_' + idx,
+                data: it[0], desc: it[1], cat: it[2], conta: it[3],
+                tipo: it[4], valTotal: it[5], numParc: it[6], mesInic: it[7], valParc: it[8],
+                g26: [0,0,0,0,0,0,0,0,0,0,0,0], g27: [0,0,0,0,0,0,0,0,0,0,0,0]
+              };
+              recalcularGradeItem(obj);
+              despesasBase.unshift(obj);
+            } else {
+              if (!it.id) it.id = 'ia_' + Date.now() + '_' + idx;
+              recalcularGradeItem(it);
+              despesasBase.unshift(it);
+            }
+          });
+          salvarDadosLocalmente();
+          atualizarTudo();
+          renderizarGradeMestra();
+          fecharModalImportarIA();
+          alert(`${novosItens.length} novos lançamentos importados e salvos na nuvem com sucesso!`);
+        } else {
+          alert('Formato inválido. Cole o bloco exato gerado aqui no chat.');
+        }
+      } catch (e) {
+        alert('Erro ao ler os dados colados. Verifique se copiou o bloco completo.');
+      }
+    }
+
+    function renderizarReceitas() {
+      const mes = parseInt(document.getElementById('sel-mes').value);
+      const ano = parseInt(document.getElementById('sel-ano').value);
+
+      const receitasFiltradas = receitas.filter(r => r.ano === ano && r.mes === mes);
+      const totalPrevisto = receitasFiltradas.reduce((acc, r) => acc + r.valor, 0);
+      const totalRecebido = receitasFiltradas.filter(r => r.recebido).reduce((acc, r) => acc + r.valor, 0);
+      const totalPendente = totalPrevisto - totalRecebido;
+
+      const elPrev = document.getElementById('rec-card-previsto');
+      const elRec = document.getElementById('rec-card-recebido');
+      const elPend = document.getElementById('rec-card-pendente');
+      if (elPrev) elPrev.innerText = formatarMoeda(totalPrevisto);
+      if (elRec) elRec.innerText = formatarMoeda(totalRecebido);
+      if (elPend) elPend.innerText = formatarMoeda(totalPendente);
+
+      const corpo = document.getElementById('corpo-receitas');
+      if (!corpo) return;
+      corpo.innerHTML = '';
+
+      if (receitasFiltradas.length === 0) {
+        corpo.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Nenhuma receita cadastrada para este mês.</td></tr>`;
+        return;
+      }
+
+      receitasFiltradas.forEach(r => {
+        const corLinha = r.recebido ? 'linha-paga' : 'hover:bg-slate-50';
+        const badgeStatus = r.recebido 
+          ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
+          : 'bg-amber-50 text-amber-700 border-amber-200';
+        const txtStatus = r.recebido ? 'Recebido ✅' : 'A Receber ⏳';
+
+        corpo.innerHTML += `
+          <tr class="${corLinha} transition-colors">
+            <td class="py-2.5 px-4 text-slate-500 whitespace-nowrap font-mono">
+              <input type="text" value="${r.data}" onchange="atualizarCampoReceita('${r.id}', 'data', this.value)" class="bg-transparent w-24 font-mono text-xs focus:bg-white focus:ring-1 focus:ring-emerald-600 rounded px-1" />
+            </td>
+            <td class="py-2.5 px-4 font-bold text-slate-900">
+              <input type="text" value="${r.desc}" onchange="atualizarCampoReceita('${r.id}', 'desc', this.value)" class="bg-transparent w-full font-bold text-xs focus:bg-white focus:ring-1 focus:ring-emerald-600 rounded px-1.5 py-0.5" />
+            </td>
+            <td class="py-2.5 px-4">
+              <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/90 border border-emerald-200 text-emerald-800">${r.cat}</span>
+            </td>
+            <td class="py-2.5 px-4 text-right font-extrabold text-slate-900 whitespace-nowrap font-mono">
+              <div class="inline-flex items-center justify-end gap-1">
+                <span class="text-slate-400 text-[10px]">R$</span>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  value="${r.valor.toFixed(2)}" 
+                  onchange="atualizarCampoReceita('${r.id}', 'valor', this.value)" 
+                  class="w-24 bg-white/80 border border-slate-300 rounded-lg px-2 py-1 text-right font-mono font-extrabold text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                />
+              </div>
+            </td>
+            <td class="py-2.5 px-4 text-center">
+              <button onclick="alternarRecebimentoReceita('${r.id}')" class="px-3 py-1 rounded-lg text-[10px] font-extrabold border ${badgeStatus} transition-all">
+                ${txtStatus}
+              </button>
+            </td>
+            <td class="py-2.5 px-4 text-center">
+              <button onclick="excluirReceita('${r.id}')" class="text-rose-500 hover:text-rose-700 text-xs font-bold">✕</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function adicionarReceita() {
+      const dataVal = document.getElementById('rec-data').value;
+      const descVal = document.getElementById('rec-desc').value.trim();
+      const catVal = document.getElementById('rec-cat').value;
+      const valorVal = parseFloat(document.getElementById('rec-val').value);
+      const numMeses = parseInt(document.getElementById('rec-meses').value) || 1;
+      const jaRecebido = document.getElementById('rec-ja-recebido').checked;
+
+      if (!dataVal || !descVal || isNaN(valorVal) || valorVal <= 0) {
+        alert('Preencha a data, descrição e valor da receita corretamente.');
+        return;
+      }
+
+      const [anoStr, mesStr, diaStr] = dataVal.split('-');
+      let anoAtual = parseInt(anoStr);
+      let mesAtual = parseInt(mesStr);
+
+      for (let i = 0; i < numMeses; i++) {
+        const descFinal = numMeses > 1 
+          ? `${descVal} (${String(i + 1).padStart(2, '0')}/${String(numMeses).padStart(2, '0')})`
+          : descVal;
+
+        receitas.push({
+          id: 'rec_' + Date.now() + '_' + i,
+          ano: anoAtual,
+          mes: mesAtual,
+          data: `${diaStr}/${String(mesAtual).padStart(2, '0')}/${anoAtual}`,
+          desc: descFinal,
+          cat: catVal,
+          valor: valorVal,
+          recebido: i === 0 ? jaRecebido : false
+        });
+
+        mesAtual++;
+        if (mesAtual > 12) {
+          mesAtual = 1;
+          anoAtual++;
+        }
+      }
+
+      document.getElementById('rec-desc').value = '';
+      document.getElementById('rec-val').value = '';
+      document.getElementById('rec-meses').value = '1';
+      salvarDadosLocalmente();
+      atualizarTudo();
+    }
+
+    // ==========================================================
+    // IA CONVERSACIONAL COM O MODELO ESTÁVEL GEMINI-1.5-FLASH
+    // ==========================================================
+    let HISTORICO_CONVERSA = [];
+
+    function renderizarMensagensChat() {
+      const cont = document.getElementById('chat-mensagens');
+      if (!cont) return;
+
+      if (HISTORICO_CONVERSA.length === 0) {
+        cont.innerHTML = `
+          <div class="flex gap-2">
+            <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">AI</div>
+            <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-2xl rounded-tl-none text-slate-700 leading-relaxed max-w-[85%]">
+              Olá, Matheus! Estou operacional. Pode pedir para lançar despesas ou fazer perguntas sobre seus gastos.
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      cont.innerHTML = HISTORICO_CONVERSA.map(msg => {
+        if (msg.role === 'user') {
+          return `
+            <div class="flex justify-end gap-2">
+              <div class="bg-emerald-700 text-white p-2.5 rounded-2xl rounded-tr-none leading-relaxed max-w-[85%] shadow-sm">
+                ${msg.text}
+              </div>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="flex gap-2">
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">AI</div>
+              <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-2xl rounded-tl-none text-slate-800 leading-relaxed max-w-[85%] shadow-sm">
+                ${msg.text.replace(/\n/g, '<br>')}
+              </div>
+            </div>
+          `;
+        }
+      }).join('');
+
+      cont.scrollTop = cont.scrollHeight;
+    }
+
+    function limparHistoricoChat() {
+      HISTORICO_CONVERSA = [];
+      renderizarMensagensChat();
+    }
+
+    async function enviarMensagemChat() {
+      const input = document.getElementById('input-chat-gemini');
+      const texto = (input ? input.value : '').trim();
+      const btn = document.getElementById('btn-enviar-chat');
+      const contMsg = document.getElementById('chat-mensagens');
+
+      if (!texto) return;
+
+      HISTORICO_CONVERSA.push({ role: 'user', text: texto });
+      renderizarMensagensChat();
+      if (input) input.value = '';
+
+      const elDigitando = document.createElement('div');
+      elDigitando.id = 'digitando-ai';
+      elDigitando.className = 'flex gap-2 text-slate-400 italic text-xs items-center';
+      elDigitando.innerHTML = `<span class="animate-spin inline-block">⏳</span> Gemini pensando...`;
+      contMsg.appendChild(elDigitando);
+      contMsg.scrollTop = contMsg.scrollHeight;
+      if (btn) btn.disabled = true;
+
+      const mes = parseInt(document.getElementById('sel-mes').value);
+      const ano = parseInt(document.getElementById('sel-ano').value);
+      const nomeMes = MESES_ABREV[mes - 1];
+
+      let totalDesp = 0;
+      const gastosPorCat = {};
+      despesasBase.forEach(d => {
+        const val = obterValorNoPeriodo(d, mes, ano);
+        if (val > 0) {
+          totalDesp += val;
+          gastosPorCat[d.cat] = (gastosPorCat[d.cat] || 0) + val;
+        }
+      });
+
+      const receitasDoMes = receitas.filter(r => r.ano === ano && r.mes === mes);
+      const rendaRecebida = receitasDoMes.filter(r => r.recebido).reduce((acc, r) => acc + r.valor, 0);
+      const rendaPrevista = receitasDoMes.reduce((acc, r) => acc + r.valor, 0);
+      const saldo = rendaRecebida - totalDesp;
+
+      const hoje = new Date();
+      const dataHojeStr = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
+
+      const systemInstruction = `
+Você é o assistente financeiro pessoal de Matheus Phillip. Seja inteligente, empático, direto, articulado e proativo como um consultor humano parceiro.
+
+CONTEXTO ATUAL DA PLANILHA DO MATHEUS (${nomeMes}/${ano}):
+- Renda recebida na conta: R$ ${rendaRecebida.toFixed(2)} (Previsto total: R$ ${rendaPrevista.toFixed(2)})
+- Total de gastos no mês: R$ ${totalDesp.toFixed(2)}
+- Saldo atual: R$ ${saldo.toFixed(2)}
+- Gastos por categoria: ${JSON.stringify(gastosPorCat)}
+- Categorias oficiais disponíveis: ${JSON.stringify(CATEGORIAS_OPCOES)}
+- Formas de pagamento válidas: ["PIX / Dinheiro", "Nubank", "Santander", "PortoBank", "Boleto", "Pai", "Mãe", "Welder"]
+
+REGRAS DE CONVERSA E AÇÃO:
+1. DIÁLOGO PROATIVO: Se o Matheus pedir para adicionar um gasto mas NÃO fornecer informações suficientes (ex: "adicione 300 reais" ou "gastei no mercado"), NÃO invente dados e NÃO dê erro. CONVERSE com ele! Pergunte o que falta (descrição do gasto, qual cartão/forma de pagamento usou ou em quantas parcelas foi).
+2. LANÇAMENTO COMPLETO: Quando todos os dados estiverem claros (através da mensagem atual ou somando com as anteriores da conversa), adicione ao final da sua resposta a tag exata:
+[LANCAMENTO:[{"data":"${dataHojeStr}","desc":"Nome limpo","cat":"Categoria","conta":"FormaPagamento","tipo":"À Vista ou Parcelado","valTotal":300.00,"numParc":1,"mesInic":${mes},"valParc":300.00}]]
+E avise o Matheus com entusiasmo de que a despesa foi lançada com sucesso!
+3. ANÁLISES E DÚVIDAS: Se o Matheus pedir análises, dicas ou fizer perguntas ("como estão meus gastos?", "posso gastar 500 reais?"), analise os números dele, seja sincero e pontue onde ele mais gastou e como está a folga de orçamento dele.
+      `;
+
+      let respostaTexto = "";
+      let sucesso = false;
+
+      const payloadREST = [
+        { role: "user", parts: [{ text: systemInstruction }] },
+        { role: "model", parts: [{ text: "Entendido perfeitamente. Sou o assistente pessoal do Matheus." }] }
+      ];
+      HISTORICO_CONVERSA.forEach(m => {
+        payloadREST.push({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.text }] });
+      });
+
+      // Modelo estável e oficial do AI Studio
+      const modelos = ["gemini-1.5-flash", "gemini-1.5-pro"];
+      for (const mod of modelos) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${GEMINI_API_KEY}`;
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: payloadREST })
+          });
+          const data = await res.json();
+          if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+            respostaTexto = data.candidates[0].content.parts[0].text.trim();
+            sucesso = true;
+            break;
+          }
+        } catch (eRest) {
+          console.warn(`Tentativa no modelo ${mod} falhou:`, eRest);
+        }
+      }
+
+      const digitandoNode = document.getElementById('digitando-ai');
+      if (digitandoNode) digitandoNode.remove();
+
+      if (sucesso) {
+        const matchLanc = respostaTexto.match(/\[LANCAMENTO:\s*(\[.*?\])\s*\]/s);
+        if (matchLanc) {
+          try {
+            const jsonLanc = JSON.parse(matchLanc[1]);
+            const item = jsonLanc[0];
+
+            const novoObj = {
+              id: 'gemini_' + Date.now(),
+              data: item.data || dataHojeStr,
+              desc: item.desc || "Despesa",
+              cat: item.cat || "Outros",
+              conta: item.conta || "PIX / Dinheiro",
+              tipo: item.tipo || (item.numParc > 1 ? "Parcelado" : "À Vista"),
+              valTotal: parseFloat(item.valTotal),
+              numParc: parseInt(item.numParc) || 1,
+              mesInic: parseInt(item.mesInic) || mes,
+              valParc: parseFloat(item.valParc) || parseFloat(item.valTotal),
+              g26: [0,0,0,0,0,0,0,0,0,0,0,0],
+              g27: [0,0,0,0,0,0,0,0,0,0,0,0]
+            };
+
+            recalcularGradeItem(novoObj);
+            despesasBase.unshift(novoObj);
+
+            await salvarDadosLocalmente();
+            atualizarTudo();
+            renderizarGradeMestra();
+
+            respostaTexto = respostaTexto.replace(/\[LANCAMENTO:.*?\]/s, '').trim();
+          } catch (eLanc) {
+            console.warn("Erro ao ler JSON de lançamento:", eLanc);
+          }
+        }
+
+        HISTORICO_CONVERSA.push({ role: 'model', text: respostaTexto });
+        renderizarMensagensChat();
+      } else {
+        HISTORICO_CONVERSA.push({ 
+          role: 'model', 
+          text: `⚠️ Não foi possível obter resposta no momento. Verifique a sua ligação ou tente novamente daqui a pouco.` 
+        });
+        renderizarMensagensChat();
+      }
+
+      if (btn) btn.disabled = false;
+    }
+
+    // COMANDO POR VOZ
+    function iniciarGravacaoVoz() {
+      const Reconhecimento = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!Reconhecimento) {
+        alert("O seu navegador não suporta reconhecimento de voz direto. Utilize o teclado.");
+        return;
+      }
+
+      const rec = new Reconhecimento();
+      rec.lang = "pt-BR";
+      rec.continuous = false;
+      rec.interimResults = false;
+
+      const btnVoz = document.getElementById('btn-voz-gemini');
+      if (btnVoz) btnVoz.classList.add('text-rose-500', 'animate-pulse');
+
+      rec.onresult = (e) => {
+        const transcricao = e.results[0][0].transcript;
+        const input = document.getElementById('input-chat-gemini');
+        if (input) {
+          input.value = transcricao;
+          enviarMensagemChat();
+        }
+      };
+
+      rec.onend = () => {
+        if (btnVoz) btnVoz.classList.remove('text-rose-500', 'animate-pulse');
+      };
+
+      rec.start();
+    }
+
+    // Exportação para o escopo global
+    window.mudarAba = mudarAba;
+    window.atualizarPeriodo = atualizarPeriodo;
+    window.alternarStatusExtrato = alternarStatusExtrato;
+    window.alternarChecklistIndividual = alternarChecklistIndividual;
+    window.alternarChecklistCartao = alternarChecklistCartao;
+    window.alternarRecebimentoReceita = alternarRecebimentoReceita;
+    window.atualizarCampoReceita = atualizarCampoReceita;
+    window.excluirReceita = excluirReceita;
+    window.adicionarReceita = adicionarReceita;
+    window.atualizarMetaCategoria = atualizarMetaCategoria;
+    window.alternarInputMetaNovaCat = alternarInputMetaNovaCat;
+    window.criarNovaCategoria = criarNovaCategoria;
+    window.renomearCategoriaDespesa = renomearCategoriaDespesa;
+    window.atualizarMetaPadraoCategoria = atualizarMetaPadraoCategoria;
+    window.excluirCategoriaDespesa = excluirCategoriaDespesa;
+    window.excluirCategoriaReceita = excluirCategoriaReceita;
+    window.aplicarOtimizacaoSugerida = aplicarOtimizacaoSugerida;
+    window.renderizarGradeMestra = renderizarGradeMestra;
+    window.atualizarCampoGrade = atualizarCampoGrade;
+    window.atualizarCalculoGrade = atualizarCalculoGrade;
+    window.atualizarMesGrade = atualizarMesGrade;
+    window.adicionarLinhaEmBranco = adicionarLinhaEmBranco;
+    window.removerLinhaGrade = removerLinhaGrade;
+    window.abrirModalImportarIA = abrirModalImportarIA;
+    window.fecharModalImportarIA = fecharModalImportarIA;
+    window.confirmarImportacaoIA = confirmarImportacaoIA;
+    window.enviarMensagemChat = enviarMensagemChat;
+    window.limparHistoricoChat = limparHistoricoChat;
+    window.iniciarGravacaoVoz = iniciarGravacaoVoz;
+
+    // Inicialização da interface
+    carregarDadosSalvos();
+    atualizarTudo();
+    renderizarGradeMestra();
+    renderizarMensagensChat();
+  </script>
+</body>
+</html>
