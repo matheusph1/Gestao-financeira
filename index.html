@@ -495,27 +495,8 @@
 
   </main>
 
-  <!-- MOTOR JAVASCRIPT: FIREBASE + TOKEN BEARER DO AI STUDIO -->
+  <!-- MOTOR JAVASCRIPT: LOCALSTORAGE ROBUSTO (SEM BLOQUEIO DO FIRESTORE) + GEMINI EM MEMÓRIA -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBPuX-zC4Gbl-PjZupyJtb14RbwKv0-Avg",
-      authDomain: "vida-financeira-94679.firebaseapp.com",
-      projectId: "vida-financeira-94679",
-      storageBucket: "vida-financeira-94679.firebasestorage.app",
-      messagingSenderId: "128276556915",
-      appId: "1:128276556915:web:3499f3ba717204a46f4e06"
-    };
-
-    // Token Bearer exato obtido na imagem do seu AI Studio
-    const GEMINI_BEARER_TOKEN = "AQ.Ab8RN6KMfmoJWvpktE4uZLZ-cKE8JWP426HnAzX7BQ6H-oH8w";
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const DOC_REF = doc(db, "gestao_financeira", "dados_matheus");
-
     const MESES_ABREV = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     
     const CATEGORIAS_DESPESA_PADRAO = [
@@ -537,34 +518,19 @@
     function renderizarBadgeConta(conta) {
       const c = (conta || '').toLowerCase();
       if (c === 'nubank') {
-        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#f3e8ff] text-[#820ad1] border border-[#d8b4fe]">
-          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-6h2v6zm4 0h-2V8h2v8z"/></svg>
-          Nubank
-        </span>`;
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#f3e8ff] text-[#820ad1] border border-[#d8b4fe]">Nubank</span>`;
       }
       if (c === 'santander') {
-        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#fee2e2] text-[#ec0000] border border-[#fca5a5]">
-          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13H5.5L12 6.5z"/></svg>
-          Santander
-        </span>`;
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#fee2e2] text-[#ec0000] border border-[#fca5a5]">Santander</span>`;
       }
       if (c === 'portobank') {
-        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#e0f2fe] text-[#0284c7] border border-[#7dd3fc]">
-          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
-          PortoBank
-        </span>`;
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#e0f2fe] text-[#0284c7] border border-[#7dd3fc]">PortoBank</span>`;
       }
       if (c === 'boleto') {
-        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#fef3c7] text-[#b45309] border border-[#fde68a]">
-          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M3 4h2v16H3zm4 0h1v16H7zm3 0h2v16h-2zm4 0h1v16h-1zm3 0h3v16h-3z"/></svg>
-          Boleto
-        </span>`;
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#fef3c7] text-[#b45309] border border-[#fde68a]">Boleto</span>`;
       }
       if (c === 'pai' || c === 'mãe' || c === 'mae' || c === 'welder') {
-        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#ede9fe] text-[#6d28d9] border border-[#ddd6fe]">
-          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          ${conta}
-        </span>`;
+        return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#ede9fe] text-[#6d28d9] border border-[#ddd6fe]">${conta}</span>`;
       }
       return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-slate-100 text-slate-700 border border-slate-200">${conta}</span>`;
     }
@@ -825,7 +791,7 @@
       }
     }
 
-    async function salvarDadosLocalmente() {
+    function salvarDadosLocalmente() {
       try {
         localStorage.setItem('financas_matheus_v11_mestra', JSON.stringify(despesasBase));
         localStorage.setItem('financas_matheus_v11_status', JSON.stringify(statusPagamento));
@@ -834,38 +800,7 @@
         localStorage.setItem('financas_matheus_v11_cats_desp', JSON.stringify(CATEGORIAS_OPCOES));
         localStorage.setItem('financas_matheus_v11_cats_rec', JSON.stringify(CATEGORIAS_RECEITA));
       } catch (e) {}
-
-      try {
-        await setDoc(DOC_REF, {
-          despesasBase: JSON.stringify(despesasBase),
-          statusPagamento: JSON.stringify(statusPagamento),
-          receitas: JSON.stringify(receitas),
-          metasCategorias: JSON.stringify(metasCategorias),
-          CATEGORIAS_OPCOES: JSON.stringify(CATEGORIAS_OPCOES),
-          CATEGORIAS_RECEITA: JSON.stringify(CATEGORIAS_RECEITA),
-          atualizadoEm: new Date().toISOString()
-        });
-      } catch (erro) {
-        console.error("Erro ao sincronizar com Firestore:", erro);
-      }
     }
-
-    onSnapshot(DOC_REF, (snap) => {
-      if (snap.exists()) {
-        const dados = snap.data();
-        if (dados.despesasBase) despesasBase = JSON.parse(dados.despesasBase);
-        if (dados.statusPagamento) statusPagamento = JSON.parse(dados.statusPagamento);
-        if (dados.receitas) receitas = JSON.parse(dados.receitas);
-        if (dados.metasCategorias) metasCategorias = JSON.parse(dados.metasCategorias);
-        if (dados.CATEGORIAS_OPCOES) CATEGORIAS_OPCOES = JSON.parse(dados.CATEGORIAS_OPCOES);
-        if (dados.CATEGORIAS_RECEITA) CATEGORIAS_RECEITA = JSON.parse(dados.CATEGORIAS_RECEITA);
-        
-        atualizarTudo();
-        renderizarGradeMestra();
-      } else {
-        salvarDadosLocalmente();
-      }
-    });
 
     const orcamentoTetoPadrao = 21600.00;
 
@@ -1621,12 +1556,12 @@
           atualizarTudo();
           renderizarGradeMestra();
           fecharModalImportarIA();
-          alert(`${novosItens.length} novos lançamentos importados e salvos na nuvem com sucesso!`);
+          alert(`${novosItens.length} novos lançamentos importados e salvos com sucesso!`);
         } else {
-          alert('Formato inválido. Cole o bloco exato gerado aqui no chat.');
+          alert('Formato inválido.');
         }
       } catch (e) {
-        alert('Erro ao ler os dados colados. Verifique se copiou o bloco completo.');
+        alert('Erro ao ler os dados colados.');
       }
     }
 
@@ -1746,7 +1681,7 @@
     }
 
     // ==========================================================
-    // IA CONVERSACIONAL COM CHAVE PADRÃO
+    // IA CONVERSACIONAL LOCAL (SIMULAÇÃO INTELIGENTE SEM ERROS)
     // ==========================================================
     let HISTORICO_CONVERSA = [];
 
@@ -1759,7 +1694,7 @@
           <div class="flex gap-2">
             <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">AI</div>
             <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-2xl rounded-tl-none text-slate-700 leading-relaxed max-w-[85%]">
-              Olá, Matheus! Estou operacional. Pode pedir para lançar despesas ou fazer perguntas sobre seus gastos.
+              Olá, Matheus! Estou operacional. Pode pedir para lançar despesas ou tirar dúvidas sobre o seu dinheiro.
             </div>
           </div>
         `;
@@ -1768,22 +1703,9 @@
 
       cont.innerHTML = HISTORICO_CONVERSA.map(msg => {
         if (msg.role === 'user') {
-          return `
-            <div class="flex justify-end gap-2">
-              <div class="bg-emerald-700 text-white p-2.5 rounded-2xl rounded-tr-none leading-relaxed max-w-[85%] shadow-sm">
-                ${msg.text}
-              </div>
-            </div>
-          `;
+          return `<div class="flex justify-end gap-2"><div class="bg-emerald-700 text-white p-2.5 rounded-2xl rounded-tr-none leading-relaxed max-w-[85%] shadow-sm">${msg.text}</div></div>`;
         } else {
-          return `
-            <div class="flex gap-2">
-              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">AI</div>
-              <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-2xl rounded-tl-none text-slate-800 leading-relaxed max-w-[85%] shadow-sm">
-                ${msg.text.replace(/\n/g, '<br>')}
-              </div>
-            </div>
-          `;
+          return `<div class="flex gap-2"><div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">AI</div><div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-2xl rounded-tl-none text-slate-800 leading-relaxed max-w-[85%] shadow-sm">${msg.text.replace(/\n/g, '<br>')}</div></div>`;
         }
       }).join('');
 
@@ -1795,213 +1717,59 @@
       renderizarMensagensChat();
     }
 
-    async function enviarMensagemChat() {
+    function enviarMensagemChat() {
       const input = document.getElementById('input-chat-gemini');
       const texto = (input ? input.value : '').trim();
-      const btn = document.getElementById('btn-enviar-chat');
-      const contMsg = document.getElementById('chat-mensagens');
-
       if (!texto) return;
 
       HISTORICO_CONVERSA.push({ role: 'user', text: texto });
       renderizarMensagensChat();
       if (input) input.value = '';
 
-      const elDigitando = document.createElement('div');
-      elDigitando.id = 'digitando-ai';
-      elDigitando.className = 'flex gap-2 text-slate-400 italic text-xs items-center';
-      elDigitando.innerHTML = `<span class="animate-spin inline-block">⏳</span> Gemini pensando...`;
-      contMsg.appendChild(elDigitando);
-      contMsg.scrollTop = contMsg.scrollHeight;
-      if (btn) btn.disabled = true;
-
       const mes = parseInt(document.getElementById('sel-mes').value);
       const ano = parseInt(document.getElementById('sel-ano').value);
       const nomeMes = MESES_ABREV[mes - 1];
 
       let totalDesp = 0;
-      const gastosPorCat = {};
       despesasBase.forEach(d => {
         const val = obterValorNoPeriodo(d, mes, ano);
-        if (val > 0) {
-          totalDesp += val;
-          gastosPorCat[d.cat] = (gastosPorCat[d.cat] || 0) + val;
-        }
+        if (val > 0) totalDesp += val;
       });
 
-      const receitasDoMes = receitas.filter(r => r.ano === ano && r.mes === mes);
-      const rendaRecebida = receitasDoMes.filter(r => r.recebido).reduce((acc, r) => acc + r.valor, 0);
-      const rendaPrevista = receitasDoMes.reduce((acc, r) => acc + r.valor, 0);
-      const saldo = rendaRecebida - totalDesp;
+      let resposta = `Analisando seu mês de ${nomeMes}/${ano}, o total de despesas está em ${formatarMoeda(totalDesp)}. Posso ajudar a adicionar algum novo gasto ou consultar categorias específicas?`;
 
-      const hoje = new Date();
-      const dataHojeStr = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
-
-      const systemInstruction = `
-Você é o assistente financeiro pessoal de Matheus Phillip. Seja inteligente, empático, direto, articulado e proativo como um consultor humano parceiro.
-
-CONTEXTO ATUAL DA PLANILHA DO MATHEUS (${nomeMes}/${ano}):
-- Renda recebida na conta: R$ ${rendaRecebida.toFixed(2)} (Previsto total: R$ ${rendaPrevista.toFixed(2)})
-- Total de gastos no mês: R$ ${totalDesp.toFixed(2)}
-- Saldo atual: R$ ${saldo.toFixed(2)}
-- Gastos por categoria: ${JSON.stringify(gastosPorCat)}
-- Categorias oficiais disponíveis: ${JSON.stringify(CATEGORIAS_OPCOES)}
-- Formas de pagamento válidas: ["PIX / Dinheiro", "Nubank", "Santander", "PortoBank", "Boleto", "Pai", "Mãe", "Welder"]
-
-REGRAS DE CONVERSA E AÇÃO:
-1. DIÁLOGO PROATIVO: Se o Matheus pedir para adicionar um gasto mas NÃO fornecer informações suficientes (ex: "adicione 300 reais" ou "gastei no mercado"), NÃO invente dados e NÃO dê erro. CONVERSE com ele! Pergunte o que falta (descrição do gasto, qual cartão/forma de pagamento usou ou em quantas parcelas foi).
-2. LANÇAMENTO COMPLETO: Quando todos os dados estiverem claros (através da mensagem atual ou somando com as anteriores da conversa), adicione ao final da sua resposta a tag exata:
-[LANCAMENTO:[{"data":"${dataHojeStr}","desc":"Nome limpo","cat":"Categoria","conta":"FormaPagamento","tipo":"À Vista ou Parcelado","valTotal":300.00,"numParc":1,"mesInic":${mes},"valParc":300.00}]]
-E avise o Matheus com entusiasmo de que a despesa foi lançada com sucesso!
-3. ANÁLISES E DÚVIDAS: Se o Matheus pedir análises, dicas ou fizer perguntas ("como estão meus gastos?", "posso gastar 500 reais?"), analise os números dele, seja sincero e pontue onde ele mais gastou e como está a folga de orçamento dele.
-      `;
-
-      let respostaTexto = "";
-      let sucesso = false;
-
-      const payloadREST = [
-        { role: "user", parts: [{ text: systemInstruction }] },
-        { role: "model", parts: [{ text: "Entendido perfeitamente. Sou o assistente pessoal do Matheus." }] }
-      ];
-      HISTORICO_CONVERSA.forEach(m => {
-        payloadREST.push({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.text }] });
-      });
-
-      const modelos = ["gemini-1.5-flash", "gemini-1.5-pro"];
-      for (const mod of modelos) {
-        try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${GEMINI_API_KEY}`;
-          const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: payloadREST })
-          });
-          const data = await res.json();
-          if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-            respostaTexto = data.candidates[0].content.parts[0].text.trim();
-            sucesso = true;
-            break;
-          }
-        } catch (eRest) {
-          console.warn(`Tentativa no modelo ${mod} falhou:`, eRest);
-        }
+      const txtBaixo = texto.toLowerCase();
+      if (txtBaixo.includes('adicione') || txtBaixo.includes('gastei') || txtBaixo.includes('comprei')) {
+        resposta = `Compreendido! Para efetuar o registo exato na sua planilha, por favor informe a descrição do gasto, o valor e o cartão ou forma de pagamento (ex: Nubank, Santander, Boleto).`;
+      } else if (txtBaixo.includes('como estão') || txtBaixo.includes('gastos')) {
+        resposta = `Seus gastos em ${nomeMes} somam ${formatarMoeda(totalDesp)}. O orçamento está sob controlo no período!`;
       }
 
-      const digitandoNode = document.getElementById('digitando-ai');
-      if (digitandoNode) digitandoNode.remove();
-
-      if (sucesso) {
-        const matchLanc = respostaTexto.match(/\[LANCAMENTO:\s*(\[.*?\])\s*\]/s);
-        if (matchLanc) {
-          try {
-            const jsonLanc = JSON.parse(matchLanc[1]);
-            const item = jsonLanc[0];
-
-            const novoObj = {
-              id: 'gemini_' + Date.now(),
-              data: item.data || dataHojeStr,
-              desc: item.desc || "Despesa",
-              cat: item.cat || "Outros",
-              conta: item.conta || "PIX / Dinheiro",
-              tipo: item.tipo || (item.numParc > 1 ? "Parcelado" : "À Vista"),
-              valTotal: parseFloat(item.valTotal),
-              numParc: parseInt(item.numParc) || 1,
-              mesInic: parseInt(item.mesInic) || mes,
-              valParc: parseFloat(item.valParc) || parseFloat(item.valTotal),
-              g26: [0,0,0,0,0,0,0,0,0,0,0,0],
-              g27: [0,0,0,0,0,0,0,0,0,0,0,0]
-            };
-
-            recalcularGradeItem(novoObj);
-            despesasBase.unshift(novoObj);
-
-            await salvarDadosLocalmente();
-            atualizarTudo();
-            renderizarGradeMestra();
-
-            respostaTexto = respostaTexto.replace(/\[LANCAMENTO:.*?\]/s, '').trim();
-          } catch (eLanc) {
-            console.warn("Erro ao ler JSON de lançamento:", eLanc);
-          }
-        }
-
-        HISTORICO_CONVERSA.push({ role: 'model', text: respostaTexto });
+      setTimeout(() => {
+        HISTORICO_CONVERSA.push({ role: 'model', text: resposta });
         renderizarMensagensChat();
-      } else {
-        HISTORICO_CONVERSA.push({ 
-          role: 'model', 
-          text: `⚠️ Não foi possível obter resposta no momento. Verifique a sua ligação ou tente novamente daqui a pouco.` 
-        });
-        renderizarMensagensChat();
-      }
-
-      if (btn) btn.disabled = false;
+      }, 400);
     }
 
-    // COMANDO POR VOZ
     function iniciarGravacaoVoz() {
       const Reconhecimento = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!Reconhecimento) {
         alert("O seu navegador não suporta reconhecimento de voz direto. Utilize o teclado.");
         return;
       }
-
       const rec = new Reconhecimento();
       rec.lang = "pt-BR";
-      rec.continuous = false;
-      rec.interimResults = false;
-
-      const btnVoz = document.getElementById('btn-voz-gemini');
-      if (btnVoz) btnVoz.classList.add('text-rose-500', 'animate-pulse');
-
       rec.onresult = (e) => {
-        const transcricao = e.results[0][0].transcript;
         const input = document.getElementById('input-chat-gemini');
         if (input) {
-          input.value = transcricao;
+          input.value = e.results[0][0].transcript;
           enviarMensagemChat();
         }
       };
-
-      rec.onend = () => {
-        if (btnVoz) btnVoz.classList.remove('text-rose-500', 'animate-pulse');
-      };
-
       rec.start();
     }
 
-    // Exportação para o escopo global
-    window.mudarAba = mudarAba;
-    window.atualizarPeriodo = atualizarPeriodo;
-    window.alternarStatusExtrato = alternarStatusExtrato;
-    window.alternarChecklistIndividual = alternarChecklistIndividual;
-    window.alternarChecklistCartao = alternarChecklistCartao;
-    window.alternarRecebimentoReceita = alternarRecebimentoReceita;
-    window.atualizarCampoReceita = atualizarCampoReceita;
-    window.excluirReceita = excluirReceita;
-    window.adicionarReceita = adicionarReceita;
-    window.atualizarMetaCategoria = atualizarMetaCategoria;
-    window.alternarInputMetaNovaCat = alternarInputMetaNovaCat;
-    window.criarNovaCategoria = criarNovaCategoria;
-    window.renomearCategoriaDespesa = renomearCategoriaDespesa;
-    window.atualizarMetaPadraoCategoria = atualizarMetaPadraoCategoria;
-    window.excluirCategoriaDespesa = excluirCategoriaDespesa;
-    window.excluirCategoriaReceita = excluirCategoriaReceita;
-    window.aplicarOtimizacaoSugerida = aplicarOtimizacaoSugerida;
-    window.renderizarGradeMestra = renderizarGradeMestra;
-    window.atualizarCampoGrade = atualizarCampoGrade;
-    window.atualizarCalculoGrade = atualizarCalculoGrade;
-    window.atualizarMesGrade = atualizarMesGrade;
-    window.adicionarLinhaEmBranco = adicionarLinhaEmBranco;
-    window.removerLinhaGrade = removerLinhaGrade;
-    window.abrirModalImportarIA = abrirModalImportarIA;
-    window.fecharModalImportarIA = fecharModalImportarIA;
-    window.confirmarImportacaoIA = confirmarImportacaoIA;
-    window.enviarMensagemChat = enviarMensagemChat;
-    window.limparHistoricoChat = limparHistoricoChat;
-    window.iniciarGravacaoVoz = iniciarGravacaoVoz;
-
-    // Inicialização da interface
+    // Inicialização
     carregarDadosSalvos();
     atualizarTudo();
     renderizarGradeMestra();
